@@ -35,9 +35,8 @@
 #include <math.h>
 #include <arm_math.h>
 #include <cmsis_extension.h>
-#include "fb_alloc.h"
 #include "file_utils.h"
-#include "umm_malloc.h"
+#include "umalloc.h"
 #include "array.h"
 #include "fmath.h"
 #include "collections.h"
@@ -1368,8 +1367,6 @@ void imlib_find_hog(image_t *src, rectangle_t *roi, int cell_size);
 
 // Helper Functions
 void imlib_zero(image_t *img, image_t *mask, bool invert);
-void imlib_draw_row_setup(imlib_draw_row_data_t *data);
-void imlib_draw_row_teardown(imlib_draw_row_data_t *data);
 void imlib_draw_row(int x_start, int x_end, int y_row, imlib_draw_row_data_t *data);
 void imlib_draw_image_get_bounds(image_t *dst_img,
                                  image_t *src_img,
@@ -1541,9 +1538,6 @@ void imlib_lsd_find_line_segments(list_t *out,
                                   rectangle_t *roi,
                                   unsigned int merge_distance,
                                   unsigned int max_theta_diff);
-void imlib_find_line_segments(list_t *out, image_t *ptr, rectangle_t *roi, unsigned int x_stride, unsigned int y_stride,
-                              uint32_t threshold, unsigned int theta_margin, unsigned int rho_margin,
-                              uint32_t segment_threshold);
 void imlib_find_circles(list_t *out, image_t *ptr, rectangle_t *roi, unsigned int x_stride, unsigned int y_stride,
                         uint32_t threshold, unsigned int x_margin, unsigned int y_margin, unsigned int r_margin,
                         unsigned int r_min, unsigned int r_max, unsigned int r_step);

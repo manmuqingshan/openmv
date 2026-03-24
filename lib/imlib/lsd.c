@@ -35,11 +35,11 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
-#define error(msg)                fb_alloc_fail()
-#define free(ptr)                 ({ umm_free(ptr); })
-#define malloc(size)              ({ void *_r = umm_malloc(size); if (!_r) fb_alloc_fail(); _r; })
-#define realloc(ptr, size)        ({ void *_r = umm_realloc((ptr), (size)); if (!_r) fb_alloc_fail(); _r; })
-#define calloc(num, item_size)    ({ void *_r = umm_calloc((num), (item_size)); if (!_r) fb_alloc_fail(); _r; })
+#define error(msg)                uma_fail()
+#define free(ptr)                 uma_free(ptr)
+#define malloc(size)              uma_malloc(size, UMA_DTCM)
+#define realloc(ptr, size)        uma_realloc(ptr, size, UMA_DTCM)
+#define calloc(num, item_size)    uma_calloc((num) * (item_size), UMA_DTCM)
 #define sqrt(x)                   fast_sqrtf(x)
 #define floor(x)                  fast_floorf(x)
 #define ceil(x)                   fast_ceilf(x)
@@ -2694,7 +2694,7 @@ void imlib_lsd_find_line_segments(list_t *out,
                                   rectangle_t *roi,
                                   unsigned int merge_distance,
                                   unsigned int max_theta_diff) {
-    uint8_t *grayscale_image = fb_alloc(roi->w * roi->h, FB_ALLOC_CACHE_ALIGN | FB_ALLOC_PREFER_SIZE);
+    uint8_t *grayscale_image = uma_malloc(roi->w * roi->h, UMA_CACHE);
 
     image_t img;
     img.w = roi->w;
@@ -2702,8 +2702,6 @@ void imlib_lsd_find_line_segments(list_t *out,
     img.pixfmt = PIXFORMAT_GRAYSCALE;
     img.data = grayscale_image;
     imlib_draw_image(&img, ptr, 0, 0, 1.f, 1.f, roi, -1, 255, NULL, NULL, 0, NULL, NULL, NULL, NULL);
-
-    umm_init_x(fb_avail());
 
     int n_ls;
     float *ls = LineSegmentDetection(&n_ls,
@@ -2752,12 +2750,13 @@ void imlib_lsd_find_line_segments(list_t *out,
         }
     }
 
+    uma_free(ls);
+
     if (merge_distance > 0) {
         merge_alot(out, merge_distance, max_theta_diff);
     }
 
-    fb_free(); // umm_init_x();
-    fb_free(); // grayscale_image;
+    uma_free(grayscale_image);
 }
 
 #pragma GCC diagnostic pop
