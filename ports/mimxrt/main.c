@@ -68,7 +68,6 @@
 #include "board_config.h"
 #include "framebuffer.h"
 #include "omv_csi.h"
-#include "fb_alloc.h"
 #include "file_utils.h"
 #include "mp_utils.h"
 #include "mimxrt_hal.h"
@@ -99,9 +98,9 @@ soft_reset:
     #if MICROPY_PY_TV
     py_tv_init0();
     #endif
+    uma_init();
     imlib_init();
     readline_init0();
-    fb_alloc_init0();
     framebuffer_init0();
     omv_csi_init0();
     machine_adc_init();

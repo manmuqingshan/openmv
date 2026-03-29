@@ -90,7 +90,6 @@
 
 #include "sdram.h"
 #include "stm_xspi.h"
-#include "fb_alloc.h"
 #include "file_utils.h"
 
 #include "py_image.h"
@@ -221,6 +220,7 @@ soft_reset:
     #if MICROPY_PY_TV
     py_tv_init0();
     #endif
+    uma_init();
     imlib_init();
     readline_init0();
     pin_init0();
@@ -234,7 +234,6 @@ soft_reset:
     #endif
     spi_init0();
     uart_init0();
-    fb_alloc_init0();
     omv_gpio_init0();
     framebuffer_init0();
     #if MICROPY_PY_CSI
