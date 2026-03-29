@@ -128,33 +128,6 @@ PROVIDE(__stack = __StackTop);
 } >OMV_CORE1_MEMORY
 #endif
 
-/* Main framebuffer memory */
-#if defined(OMV_FB_MEMORY)
-.fb_memory (NOLOAD) :
-{
-  . = ALIGN(4);
-  _fb_memory_start = .;
-  . += OMV_FB_SIZE;
-  . = ALIGN(4);
-  _fb_memory_end = .;
-  . += OMV_FB_ALLOC_SIZE;
-  . = ALIGN(4);
-  _fb_alloc_end = .;
-  . = ALIGN(4);
-} >OMV_FB_MEMORY
-#endif
-
-/* Main framebuffer fast memory */
-#if defined(OMV_FB_OVERLAY_MEMORY)
-.fb_overlay_memory (NOLOAD) :
-{
-  . = ALIGN(4);
-  _fballoc_overlay_start = .;
-  . = . + OMV_FB_OVERLAY_SIZE;
-  _fballoc_overlay_end = .;
-} >OMV_FB_OVERLAY_MEMORY
-#endif
-
 /* Misc DMA buffers section */
 .dma.memory0 (NOLOAD) : ALIGN(32)
 {

@@ -24,7 +24,6 @@
 
 COMMON_SRC_C += \
     array.c \
-    fb_alloc.c \
     file_utils.c \
     mp_utils.c \
     mutex.c \
@@ -34,7 +33,6 @@ COMMON_SRC_C += \
     omv_i2c.c \
     pendsv.c \
     trace.c \
-    umm_malloc.c \
     memcpy.c \
     vospi.c \
     queue.c \
