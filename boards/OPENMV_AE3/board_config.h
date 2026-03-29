@@ -67,8 +67,6 @@ extern unsigned char OMV_BOARD_UID_ADDR[12];    // Unique address.
 #define OMV_FIR_MLX90641_ENABLE         (0)
 #define OMV_FIR_AMG8833_ENABLE          (1)
 
-// UMM heap block size
-#define OMV_UMM_BLOCK_SIZE              32
 
 // USB config.
 #define OMV_USB_IRQN                    (USB_IRQ_IRQn)
@@ -81,9 +79,7 @@ extern unsigned char OMV_BOARD_UID_ADDR[12];    // Unique address.
         HAS_GPU, HAS_NPU, HAS_CRC, HAS_PMU, HAS_WIFI,                  \
         HAS_BT, HAS_SD, HAS_ETH, HAS_USB_HS, HAS_MULTICORE)
 
-// Linker script constants (see the linker script template alif.ld.S).
-// Note: fb_alloc is a stack-based, dynamically allocated memory on FB.
-// The maximum available fb_alloc memory = FB_ALLOC_SIZE + FB_SIZE - (w*h*bpp).
+// Linker script constants (see common.ld.S).
 #if BOOTLOADER
 // Bootloader config
 #define OMV_MAIN_MEMORY                 DTCM    // data, bss and heap memory
@@ -99,11 +95,6 @@ extern unsigned char OMV_BOARD_UID_ADDR[12];    // Unique address.
 #define OMV_BSS_SRAM_MEMORY             SRAM1   // BSS memory outside DTCM.
 #define OMV_STACK_MEMORY                ITCM    // stack memory
 #define OMV_STACK_SIZE                  (256K)
-#define OMV_FB_MEMORY                   SRAM1   // Main Frame buffer, fb_alloc
-#define OMV_FB_SIZE                     (2048K)
-#define OMV_FB_ALLOC_SIZE               (464K)  // Minimum fb alloc size
-#define OMV_FB_OVERLAY_MEMORY           DTCM    // Fast fb_alloc memory.
-#define OMV_FB_OVERLAY_SIZE             (512K)  // Fast fb_alloc memory size.
 #define OMV_SB_MEMORY                   SRAM6_A // Streaming buffer memory.
 #define OMV_SB_SIZE                     (1M)    // Streaming buffer size.
 #define OMV_DMA_MEMORY                  DTCM    // Misc DMA buffers memory.
@@ -111,8 +102,14 @@ extern unsigned char OMV_BOARD_UID_ADDR[12];    // Unique address.
 #define OMV_GPU_SIZE                    (256K)
 #define OMV_OPENAMP_MEMORY              SRAM9_A // Open-AMP SHM.
 #define OMV_OPENAMP_SIZE                (64K)
-#define OMV_GC_BLOCK0_MEMORY            SRAM0   // Extra GC block 1
+#define OMV_GC_BLOCK0_MEMORY            SRAM0   // Main GC block
 #define OMV_GC_BLOCK0_SIZE              (4M)
+#define OMV_UMA_BLOCK0_MEMORY           SRAM1   // Default UMA pool.
+#define OMV_UMA_BLOCK0_SIZE             (2512K)
+#define OMV_UMA_BLOCK0_FLAGS            (0)
+#define OMV_UMA_BLOCK1_MEMORY           DTCM    // Fast UMA pool.
+#define OMV_UMA_BLOCK1_SIZE             (512K)
+#define OMV_UMA_BLOCK1_FLAGS            (UMA_DTCM)
 #else
 // HE core config
 #define OMV_MAIN_MEMORY                 DTCM    // data, bss
@@ -121,16 +118,16 @@ extern unsigned char OMV_BOARD_UID_ADDR[12];    // Unique address.
 #define OMV_BSS_SRAM_MEMORY             SRAM6_B // BSS memory outside DTCM.
 #define OMV_STACK_MEMORY                ITCM    // stack memory
 #define OMV_STACK_SIZE                  (256K)
-#define OMV_FB_MEMORY                   SRAM6_B   // Main Frame buffer, fb_alloc
-#define OMV_FB_SIZE                     (256K)
-#define OMV_FB_ALLOC_SIZE               (256K)  // Minimum fb alloc size
-#define OMV_SB_MEMORY                   SRAM6_B   // JPEG buffer.
+#define OMV_SB_MEMORY                   SRAM6_B // JPEG buffer.
 #define OMV_SB_SIZE                     (500K)
 #define OMV_DMA_MEMORY                  DTCM    // Misc DMA buffers memory.
 #define OMV_OPENAMP_MEMORY              SRAM9_A // Open-AMP SHM
 #define OMV_OPENAMP_SIZE                (64K)
 #define OMV_GC_BLOCK0_MEMORY            SRAM8   // Main GC block
 #define OMV_GC_BLOCK0_SIZE              (2M)
+#define OMV_UMA_BLOCK0_MEMORY           SRAM6_B // Default UMA pool.
+#define OMV_UMA_BLOCK0_SIZE             (512K)
+#define OMV_UMA_BLOCK0_FLAGS            (0)
 #endif
 
 // Flash configuration.
