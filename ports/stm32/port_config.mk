@@ -92,9 +92,6 @@ LDFLAGS += -Wl,--wrap=usbd_cdc_control \
            -Wl,--wrap=mp_hal_stdout_tx_strn
 endif
 
-LDSCRIPT_FLAGS += -I$(COMMON_DIR) \
-                  -I$(OMV_BOARD_CONFIG_DIR)
-
 ifneq ($(OMV_RAMFUNC_OBJS),)
 LDSCRIPT_FLAGS += -DOMV_RAMFUNC_EXC="$(addprefix *,$(OMV_RAMFUNC_OBJS))"
 LDSCRIPT_FLAGS += -DOMV_RAMFUNC_INC="$(foreach obj,$(OMV_RAMFUNC_OBJS),*$(obj)(.text.* .rodata.*);)"
@@ -261,7 +258,9 @@ $(OMV_FIRM_OBJ): | MICROPYTHON
 
 # This target builds the firmware.
 $(FIRMWARE): $(OMV_FIRM_OBJ)
-	$(CPP) -P -E $(LDSCRIPT_FLAGS) ports/$(PORT)/$(LDSCRIPT).ld.S > $(BUILD)/$(LDSCRIPT).lds
+	$(ECHO) "GEN linker script"
+	$(PYTHON) $(TOOLS_DIR)/$(GENLINK) --board $(TARGET) \
+        --ldscript ports/$(PORT)/$(LDSCRIPT).ld.S -- $(LDSCRIPT_FLAGS) > $(BUILD)/$(LDSCRIPT).lds
 	$(CC) $(LDFLAGS) $(OMV_FIRM_OBJ) $(MPY_FIRM_OBJ) -o $(FW_DIR)/$(FIRMWARE).elf $(LIBS) -lm
 	$(OBJCOPY) -Obinary $(FW_DIR)/$(FIRMWARE).elf $(FW_DIR)/$(FIRMWARE).bin
 ifeq ($(OMV_ENABLE_BL), 1)

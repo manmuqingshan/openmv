@@ -236,9 +236,9 @@ $(OMV_FIRM_OBJ): | MICROPYTHON
 
 # This target builds the firmware.
 $(FIRMWARE): $(OMV_FIRM_OBJ)
-	$(CPP) -P -E -DLINKER_SCRIPT -DCORE_$(MCU_CORE) \
-        -I$(COMMON_DIR) -I$(OMV_BOARD_CONFIG_DIR) \
-        ports/$(PORT)/$(LDSCRIPT).ld.S > $(BUILD)/$(LDSCRIPT).lds
+	$(ECHO) "GEN linker script"
+	$(PYTHON) $(TOOLS_DIR)/$(GENLINK) --board $(TARGET) \
+        --ldscript ports/$(PORT)/$(LDSCRIPT).ld.S -- -DCORE_$(MCU_CORE) > $(BUILD)/$(LDSCRIPT).lds
 	$(CC) $(LDFLAGS) $(OMV_FIRM_OBJ) $(MPY_FIRM_OBJ) -o $(FW_DIR)/$(FIRMWARE).elf $(LIBS) -lm
 	$(OBJCOPY) -Obinary $(FW_DIR)/$(FIRMWARE).elf $(FW_DIR)/$(FIRMWARE).bin
 	BIN_SIZE=$$(stat -c%s "$(FW_DIR)/$(FIRMWARE).bin"); \

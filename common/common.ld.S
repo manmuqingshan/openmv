@@ -33,14 +33,6 @@
 #define OMV_ALIGN_DMA_SECTION(section) \
     ALIGN(., 1 << LOG2CEIL(SIZEOF(section)))
 
-/* Define a new GC block. */
-#define OMV_GC_BLOCK_NEW(n) \
-  .gc.block##n (NOLOAD) : { \
-    . = ALIGN(4); \
-    . += OMV_GC_BLOCK##n##_SIZE; \
-    . = ALIGN(4); \
-  } >OMV_GC_BLOCK##n##_MEMORY \
-
 /* Define a new DMA buffer region. */
 #define OMV_DMA_MEMORY_NEW(X) \
     .dma.memory##X (NOLOAD) : ALIGN(32) \
@@ -58,41 +50,6 @@
   . = ALIGN(4);
   _heap_end  = .;
 } >OMV_GC_BLOCK0_MEMORY
-#endif
-
-/* Additional GC heap blocks */
-#if defined(OMV_GC_BLOCK1_MEMORY)
-OMV_GC_BLOCK_NEW(1)
-#endif
-#if defined(OMV_GC_BLOCK2_MEMORY)
-OMV_GC_BLOCK_NEW(2)
-#endif
-#if defined(OMV_GC_BLOCK3_MEMORY)
-OMV_GC_BLOCK_NEW(3)
-#endif
-#if defined(OMV_GC_BLOCK4_MEMORY)
-OMV_GC_BLOCK_NEW(4)
-#endif
-
-/* Additional GC heap blocks table */
-#if defined(OMV_GC_BLOCK1_MEMORY)
-.gc.blocks.table (READONLY) :
-{
-  . = ALIGN(4);
-  _gc_blocks_table_start = .;
-  OMV_ADD_SECTION(.gc.block1)
-  #if defined(OMV_GC_BLOCK2_MEMORY)
-  OMV_ADD_SECTION(.gc.block2)
-  #endif
-  #if defined(OMV_GC_BLOCK3_MEMORY)
-  OMV_ADD_SECTION(.gc.block3)
-  #endif
-  #if defined(OMV_GC_BLOCK4_MEMORY)
-  OMV_ADD_SECTION(.gc.block4)
-  #endif
-  _gc_blocks_table_end = .;
-  . = ALIGN(4);
-} > FLASH_TEXT
 #endif
 
 /* Heap memory for libc malloc/sbrk */
@@ -203,20 +160,20 @@ PROVIDE(__stack = __StackTop);
 {
   /* Image line buffer. */
   #if defined(OMV_LINE_BUF_SIZE)
-  . = ALIGN(16);
+  . = ALIGN(32);
   _line_buf = .;
   . = . + OMV_LINE_BUF_SIZE;
   #endif
 
   /* USB MSC bot data (2K) */
   #if defined(OMV_MSC_BUF_SIZE)
-  . = ALIGN(16);
+  . = ALIGN(32);
   _msc_buf  = .;
   . = . + OMV_MSC_BUF_SIZE;
   #endif
 
   #if defined(OMV_SB_SIZE) && !defined(OMV_SB_MEMORY)
-  . = ALIGN(16);
+  . = ALIGN(32);
   _sb_memory_start = .;
   . = . + OMV_SB_SIZE;
   _sb_memory_end = .;
@@ -224,16 +181,16 @@ PROVIDE(__stack = __StackTop);
 
   /* FFS (internal) filesystem buffer */
   #if defined(OMV_FFS_BUF_SIZE)
-  . = ALIGN(16);
+  . = ALIGN(32);
   _micropy_hw_internal_flash_storage_ram_cache_start = .;
   . = . + OMV_FFS_BUF_SIZE;
   _micropy_hw_internal_flash_storage_ram_cache_end = .;
   #endif
 
- . = ALIGN(16);
+ . = ALIGN(32);
   *(.dma_buffer)
 
- . = ALIGN(16);
+ . = ALIGN(32);
  *(NonCacheable)
 
   . = OMV_ALIGN_DMA_SECTION(.dma.memory0);
@@ -243,35 +200,6 @@ PROVIDE(__stack = __StackTop);
 } >OMV_MAIN_MEMORY
 #endif
 
-/* Additional DMA memory buffers */
-#if defined(OMV_DMA_MEMORY_D1)
-OMV_DMA_MEMORY_NEW(1)
-#endif
-#if defined(OMV_DMA_MEMORY_D2)
-OMV_DMA_MEMORY_NEW(2)
-#endif
-#if defined(OMV_DMA_MEMORY_D3)
-OMV_DMA_MEMORY_NEW(3)
-#endif
-
-/* Additional DMA memory tables */
-.dma.memory.table (READONLY) :
-{
-  . = ALIGN(4);
-  _dma_memory_table_start = .;
-  OMV_ADD_SECTION(.dma.memory0)
-  #if defined(OMV_DMA_MEMORY_D1)
-  OMV_ADD_SECTION(.dma.memory1)
-  #endif
-  #if defined(OMV_DMA_MEMORY_D2)
-  OMV_ADD_SECTION(.dma.memory2)
-  #endif
-  #if defined(OMV_DMA_MEMORY_D3)
-  OMV_ADD_SECTION(.dma.memory3)
-  #endif
-  _dma_memory_table_end = .;
-  . = ALIGN(4);
-} > FLASH_TEXT
 
 #if defined(OMV_ROMFS_PART0_ORIGIN)
 _micropy_hw_romfs_part0_start = OMV_ROMFS_PART0_ORIGIN;
