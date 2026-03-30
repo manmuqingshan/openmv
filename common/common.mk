@@ -38,6 +38,7 @@ COMMON_SRC_C += \
     vospi.c \
     queue.c \
     omv_profiler.c \
+    umalloc.c \
 
 CFLAGS += -I$(TOP_DIR)/common
 OMV_FIRM_OBJ += $(addprefix $(BUILD)/common/, $(COMMON_SRC_C:.c=.o))

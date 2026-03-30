@@ -24,6 +24,8 @@
 // to LD. It has access to the board config file, can define and use CPP macros,
 // and it uses a lot of magic 🪄.
 
+#include "umalloc.h"
+
 /* Adds a section to a table */
 #define OMV_ADD_SECTION(s) \
   LONG (ADDR(s)) \
