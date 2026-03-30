@@ -48,7 +48,7 @@
 // Bootloader version numbers.
 #define OMV_BOOT_VERSION_MAJOR          (1)
 #define OMV_BOOT_VERSION_MINOR          (0)
-#define OMV_BOOT_VERSION_PATCH          (2)
+#define OMV_BOOT_VERSION_PATCH          (3)
 
 #ifndef LINKER_SCRIPT
 #include <stdint.h>
