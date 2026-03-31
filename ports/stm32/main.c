@@ -91,7 +91,6 @@
 #include "sdram.h"
 #include "stm_xspi.h"
 #include "fb_alloc.h"
-#include "dma_alloc.h"
 #include "file_utils.h"
 
 #include "py_image.h"
@@ -240,9 +239,6 @@ soft_reset:
     framebuffer_init0();
     #if MICROPY_PY_CSI
     omv_csi_init0();
-    #endif
-    #if OMV_DMA_ALLOC
-    dma_alloc_init0();
     #endif
     #if MICROPY_HW_ENABLE_SERVO
     servo_init();
