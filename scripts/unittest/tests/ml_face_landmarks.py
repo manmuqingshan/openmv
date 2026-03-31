@@ -13,7 +13,7 @@ def unittest(data_path, temp_path):
     img = image.Image(data_path + "/faces.bmp", copy_to_fb=True)
 
     # First detect a face.
-    face_detection = ml.Model("/rom/blazeface_front_128.tflite", postprocess=BlazeFace(threshold=0.4))
+    face_detection = ml.Model(data_path + "/blazeface_front_128.tflite", postprocess=BlazeFace(threshold=0.4))
     faces = face_detection.predict([img])
 
     expected_rects = [
@@ -34,7 +34,7 @@ def unittest(data_path, temp_path):
     wider_rect = (r[0] - r[2] // 2, r[1] - r[3] // 2, r[2] * 2, r[3] * 2)
     n = Normalization(roi=wider_rect)
 
-    face_landmarks = ml.Model("/rom/face_landmarks_192.tflite", postprocess=FaceLandmarks(threshold=0.4))
+    face_landmarks = ml.Model(data_path + "/face_landmarks_192.tflite", postprocess=FaceLandmarks(threshold=0.4))
     marks = face_landmarks.predict([n(img)])
 
     if len(marks) != 1:

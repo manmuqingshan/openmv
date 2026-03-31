@@ -8,8 +8,8 @@ import os
 import gc
 import time
 
+DATA_PATH = "/rom"
 TEMP_PATH = "/remote/temp"
-DATA_PATH = "/remote/data"
 TEST_PATH = "/remote/tests"
 
 # Terminal color codes
