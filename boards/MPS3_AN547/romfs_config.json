@@ -61,6 +61,10 @@
       "path": "{TOP}/lib/models/movenet_singlepose_192.tflite",
       "alignment": 32,
       "optimize": "Performance"
+    },
+    {
+      "type": "data",
+      "path": "{TOP}/scripts/unittest/data/*"
     }
     ]
   }
