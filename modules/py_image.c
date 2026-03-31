@@ -383,7 +383,7 @@ static mp_obj_t py_image_it_iternext(mp_obj_t self_in) {
             if (self->cur >= img->size) {
                 return MP_OBJ_STOP_ITERATION;
             } else {
-                return mp_obj_new_int(img->pixels[self->cur++]);
+                return mp_obj_new_int(img->data[self->cur++]);
             }
         }
     }
@@ -1093,7 +1093,7 @@ static mp_obj_t py_image_to(pixformat_t pixfmt, mp_rom_obj_t default_color_palet
         .h = fast_floorf(roi.h * y_scale),
         .pixfmt = (pixfmt == PIXFORMAT_INVALID) ? src_img->pixfmt : pixfmt,
         .size = src_img->size,
-        .pixels = NULL,
+        .data = NULL,
     };
 
     bool transposed = false;
@@ -6891,7 +6891,7 @@ mp_obj_t py_image(int w, int h, pixformat_t pixfmt, uint32_t size, void *pixels)
     o->_cobj.h = h;
     o->_cobj.size = size;
     o->_cobj.pixfmt = pixfmt;
-    o->_cobj.pixels = pixels;
+    o->_cobj.data = pixels;
     return o;
 }
 

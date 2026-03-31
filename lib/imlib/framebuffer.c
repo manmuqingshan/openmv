@@ -89,10 +89,10 @@ void framebuffer_to_image(framebuffer_t *fb, image_t *img) {
 
         // For streaming buffers (no queues), use raw_base directly
         if (fb->used_queue == NULL) {
-            img->pixels = (uint8_t *) fb->raw_base;
+            img->data = (uint8_t *) fb->raw_base;
         } else {
             vbuffer_t *buffer = framebuffer_acquire(fb, FB_FLAG_USED | FB_FLAG_PEEK);
-            img->pixels = (buffer == NULL) ? NULL : buffer->data;
+            img->data = (buffer == NULL) ? NULL : buffer->data;
         }
     }
 }
@@ -275,7 +275,7 @@ void framebuffer_update_preview(image_t *src) {
             overflow = true;
         } else {
             framebuffer_from_image(fb, src);
-            memcpy(frame_data, src->pixels, src->size);
+            memcpy(frame_data, src->data, src->size);
         }
         goto exit_cleanup;
     }
@@ -285,7 +285,7 @@ void framebuffer_update_preview(image_t *src) {
         .h = src->h,
         .pixfmt = PIXFORMAT_JPEG,
         .size = available_size,
-        .pixels = frame_data
+        .data = frame_data
     };
 
     bool raw_stream = src->is_mutable && fb->raw_enabled && fb->raw_w && fb->raw_h;
@@ -296,7 +296,7 @@ void framebuffer_update_preview(image_t *src) {
         // Down-scale the frame (if necessary) and send the raw frame.
         dst.pixfmt = src->pixfmt;
         if (src->w <= fb->raw_w && src->h <= fb->raw_h && image_size(src) <= available_size) {
-            memcpy(dst.pixels, src->pixels, image_size(src));
+            memcpy(dst.data, src->data, image_size(src));
         } else {
             float scale = IM_MIN((fb->raw_w / (float) src->w),
                                  (fb->raw_h / (float) src->h));

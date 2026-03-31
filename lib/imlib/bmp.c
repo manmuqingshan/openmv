@@ -186,7 +186,7 @@ void bmp_read_pixels(file_t *fp, image_t *img, int n_lines, bmp_read_settings_t 
 
     if (rs->bmp_bpp == 8) {
         if ((rs->bmp_h < 0) && (rs->bmp_w >= 0) && (img->w == rs->bmp_row_bytes)) {
-            file_read(fp, img->pixels, n_lines * img->w);
+            file_read(fp, img->data, n_lines * img->w);
         } else {
             for (int i = 0; i < n_lines; i++) {
                 file_read(fp, row_buf, rs->bmp_row_bytes);
@@ -266,7 +266,7 @@ void bmp_read(image_t *img, const char *path) {
     bmp_read_settings_t rs;
     file_open(&fp, path, FA_READ | FA_OPEN_EXISTING);
     bmp_read_geometry(&fp, img, path, &rs);
-    if (!img->pixels) {
+    if (!img->data) {
         image_alloc(img, img->w * img->h * img->bpp);
     }
     bmp_read_pixels(&fp, img, img->h, &rs);
@@ -312,11 +312,11 @@ void bmp_write_subimg(image_t *img, const char *path, rectangle_t *r) {
         }
         file_write(&fp, ct_buf, sizeof(ct_buf));
         if ((rect.x == 0) && (rect.w == img->w) && (img->w == row_bytes)) {
-            file_write(&fp, img->pixels + (rect.y * img->w), rect.w * rect.h);
+            file_write(&fp, img->data + (rect.y * img->w), rect.w * rect.h);
         } else {
             uint8_t *row_buf = fb_alloc0(row_bytes, FB_ALLOC_PREFER_SPEED);
             for (int i = 0; i < rect.h; i++) {
-                memcpy(row_buf, img->pixels + ((rect.y + i) * img->w) + rect.x, rect.w);
+                memcpy(row_buf, img->data + ((rect.y + i) * img->w) + rect.x, rect.w);
                 file_write(&fp, row_buf, row_bytes);
             }
             fb_free();

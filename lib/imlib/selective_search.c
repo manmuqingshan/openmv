@@ -204,7 +204,7 @@ static void image_scale(image_t *src, image_t *dst) {
         int sy = (y * y_ratio) >> 16;
         for (int x = 0; x < dst->w; x++) {
             int sx = (x * x_ratio) >> 16;
-            ((uint16_t *) dst->pixels)[y * dst->w + x] = ((uint16_t *) src->pixels)[sy * src->w + sx];
+            ((uint16_t *) dst->data)[y * dst->w + x] = ((uint16_t *) src->data)[sy * src->w + sx];
         }
     }
 }
@@ -228,7 +228,7 @@ array_t *imlib_selective_search(image_t *src, float t, int min_size, float a1, f
         img = fb_alloc(sizeof(image_t), FB_ALLOC_NO_HINT);
         img->w = width;
         img->h = height;
-        img->pixels = fb_alloc(width * height * 2, FB_ALLOC_NO_HINT);
+        img->data = fb_alloc(width * height * 2, FB_ALLOC_NO_HINT);
         image_scale(src, img);
     }
 

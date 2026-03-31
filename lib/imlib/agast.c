@@ -76,7 +76,7 @@ void agast_detect(image_t *image, array_t *keypoints, int threshold, rectangle_t
     if (num_corners) {
         // Score corners
         for (int i = 0; i < num_corners; i++) {
-            corners[i].score = agast58_score(image->pixels + (corners[i].y * image->w + corners[i].x), threshold);
+            corners[i].score = agast58_score(image->data + (corners[i].y * image->w + corners[i].x), threshold);
         }
         // Non-max suppression
         nonmax_suppression(corners, num_corners, keypoints);
@@ -229,7 +229,7 @@ homogeneous:
 				break;
 			else
 			{
-				register const unsigned char* const p = img->pixels + y*width + x;
+				register const unsigned char* const p = img->data + y*width + x;
 				register const int cb = *p + b;
 				register const int c_b = *p - b;
 				if(p[offset0] > cb)
@@ -565,7 +565,7 @@ structured:
 				break;
 			else
 			{
-				register const unsigned char* const p = img->pixels + y*width + x;
+				register const unsigned char* const p = img->data + y*width + x;
 				register const int cb = *p + b;
 				register const int c_b = *p - b;
 				if(p[offset0] > cb)

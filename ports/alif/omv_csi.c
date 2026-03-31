@@ -371,8 +371,8 @@ int alif_csi_snapshot(omv_csi_t *csi, image_t *dst_image, uint32_t flags) {
 
         // Offset the pixels buffer for the debayer code.
         if (csi->pixformat == PIXFORMAT_RGB565) {
-            src_cimage.pixels += omv_csi_get_fb_offset(csi);
-            dst_cimage.pixels += omv_csi_get_fb_offset(csi);
+            src_cimage.data += omv_csi_get_fb_offset(csi);
+            dst_cimage.data += omv_csi_get_fb_offset(csi);
         }
 
         rectangle_t srect = { fb->x, fb->y, fb->u, fb->v };
@@ -388,7 +388,7 @@ int alif_csi_snapshot(omv_csi_t *csi, image_t *dst_image, uint32_t flags) {
 
         // Offset the pixels buffer for the debayer code.
         if (csi->pixformat == PIXFORMAT_RGB565) {
-            src_image.pixels += omv_csi_get_fb_offset(csi);
+            src_image.data += omv_csi_get_fb_offset(csi);
         }
 
         // Set the target pixel format before debayer.

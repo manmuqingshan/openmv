@@ -284,7 +284,7 @@ void png_read_geometry(file_t *fp, image_t *img, const char *path, png_read_sett
 // This function reads the pixel values of an image.
 void png_read_pixels(file_t *fp, image_t *img) {
     file_seek(fp, 0);
-    file_read(fp, img->pixels, img->size);
+    file_read(fp, img->data, img->size);
 }
 
 void png_read(image_t *img, const char *path) {
@@ -295,7 +295,7 @@ void png_read(image_t *img, const char *path) {
 
     png_read_geometry(&fp, img, path, &rs);
 
-    if (!img->pixels) {
+    if (!img->data) {
         image_alloc(img, img->size);
     }
 
@@ -307,11 +307,11 @@ void png_write(image_t *img, const char *path) {
     file_t fp;
     file_open(&fp, path, FA_WRITE | FA_CREATE_ALWAYS);
     if (img->pixfmt == PIXFORMAT_PNG) {
-        file_write(&fp, img->pixels, img->size);
+        file_write(&fp, img->data, img->size);
     } else {
-        image_t out = { .w = img->w, .h = img->h, .pixfmt = PIXFORMAT_PNG, .size = 0, .pixels = NULL }; // alloc in png compress
+        image_t out = { .w = img->w, .h = img->h, .pixfmt = PIXFORMAT_PNG, .size = 0, .data = NULL }; // alloc in png compress
         png_compress(img, &out);
-        file_write(&fp, out.pixels, out.size);
+        file_write(&fp, out.data, out.size);
         fb_free(); // frees alloc in png_compress()
     }
     file_close(&fp);
