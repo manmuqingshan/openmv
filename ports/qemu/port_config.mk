@@ -180,7 +180,8 @@ $(ROMFS_IMAGE): $(ROMFS_CONFIG) | $(FIRMWARE)
             --top-dir $(TOP_DIR) \
             --out-dir $(FW_DIR) \
             --build-dir $(BUILD)/lib/models \
-            --vela-args $(VELA_ARGS) --config $(ROMFS_CONFIG)
+            $(if $(VELA_ARGS),--vela-args $(VELA_ARGS)) \
+            --config $(ROMFS_CONFIG)
 	touch $@
 
 ifneq ($(QEMU_MACHINE),)
