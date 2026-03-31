@@ -9,10 +9,7 @@ OMV_BOARD_CFLAGS= -DQEMU_SOC_MPS2 \
                   -DOMV_NOSYS_STUBS_ENABLE=1 \
                   -DCPU_FREQ_HZ=25000000
 DEBUGGER=QEMU
-VELA_ARGS= "--accelerator-config ethos-u55-256 \
-            --memory-mode Shared_Sram \
-            --config $(TOP_DIR)/tools/vela.ini \
-            --system-config RTSS_HE_SRAM_Only"
+OMV_ROMFS_PART0_ORIGIN=0x60E00000
 OMV_QEMU_ARGS=--machine $(QEMU_MACHINE) --show-output
 MICROPY_PY_CSI = 1
 MICROPY_PY_CSI_NG = 1
