@@ -69,7 +69,6 @@
 #include "framebuffer.h"
 #include "omv_csi.h"
 #include "fb_alloc.h"
-#include "dma_alloc.h"
 #include "file_utils.h"
 #include "mp_utils.h"
 #include "mimxrt_hal.h"
@@ -105,7 +104,6 @@ soft_reset:
     fb_alloc_init0();
     framebuffer_init0();
     omv_csi_init0();
-    //dma_alloc_init0();
     machine_adc_init();
     #if MICROPY_PY_MACHINE_SDCARD
     machine_sdcard_init0();
