@@ -46,7 +46,7 @@
 #define OMV_FB_SIZE                           (2M)      // FB memory: header + QVGA/GS image
 #define OMV_FB_ALLOC_SIZE                     (6M)      // minimum fb alloc size
 #define OMV_HEAP_MEMORY                       PSRAM     // libc/sbrk heap memory
-#define OMV_HEAP_SIZE                         (8M)
+#define OMV_HEAP_SIZE                         (6M)
 #define OMV_GC_BLOCK0_MEMORY                  SRAM1     // Main GC block
 #define OMV_GC_BLOCK0_SIZE                    (1M)
 #define OMV_SB_SIZE                           (128K)    // IDE JPEG buffer size (header + data).
@@ -54,14 +54,18 @@
 // Memory map.
 #define OMV_SRAM1_ORIGIN                      0x20000000
 #define OMV_SRAM1_LENGTH                      4M
+
 #define OMV_PSRAM_ORIGIN                      0x60000000
-#define OMV_PSRAM_LENGTH                      16M
+#define OMV_PSRAM_LENGTH                      14M
 
 #define OMV_FLASH_ISR_ORIGIN                  0x00000000
 #define OMV_FLASH_ISR_LENGTH                  4K
 
 #define OMV_FLASH_TXT_ORIGIN                  0x00001000
-#define OMV_FLASH_TXT_LENGTH                  4092M
+#define OMV_FLASH_TXT_LENGTH                  4096M
+
+#define OMV_ROMFS_PART0_ORIGIN                0x60E00000
+#define OMV_ROMFS_PART0_LENGTH                0x00200000
 
 // CSI configuration.
 #define OMV_CSI_I2C_ID                        (0)

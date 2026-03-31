@@ -9,7 +9,7 @@ def unittest(data_path, temp_path):
     from ml.postprocessing.edgeimpulse import Fomo
 
     img = image.Image(data_path + "/faces.bmp", copy_to_fb=True)
-    model = ml.Model("/rom/fomo_face_detection.tflite", postprocess=Fomo(threshold=0.4))
+    model = ml.Model(data_path + "/fomo_face_detection.tflite", postprocess=Fomo(threshold=0.4))
     output = model.predict([img])
 
     return output[1] == [

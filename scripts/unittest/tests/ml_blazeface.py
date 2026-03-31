@@ -9,7 +9,7 @@ def unittest(data_path, temp_path):
     from ml.postprocessing.mediapipe import BlazeFace
 
     img = image.Image(data_path + "/faces.bmp", copy_to_fb=True)
-    model = ml.Model("/rom/blazeface_front_128.tflite", postprocess=BlazeFace(threshold=0.4))
+    model = ml.Model(data_path + "/blazeface_front_128.tflite", postprocess=BlazeFace(threshold=0.4))
     output = model.predict([img])
 
     expected = [
