@@ -441,7 +441,7 @@ void imlib_phasecorrelate(image_t *img0,
         img0_fixed.w = roi0->w;
         img0_fixed.h = roi0->h;
         img0_fixed.pixfmt = img0->pixfmt;
-        img0_fixed.pixels = fb_alloc(image_size(&img0_fixed), FB_ALLOC_NO_HINT);
+        img0_fixed.data = fb_alloc(image_size(&img0_fixed), FB_ALLOC_NO_HINT);
 
         roi0_fixed.x = 0;
         roi0_fixed.y = 0;

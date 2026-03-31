@@ -119,7 +119,7 @@ void ppm_read_pixels(file_t *fp, image_t *img, int n_lines, ppm_read_settings_t 
             }
         }
     } else if (rs->ppm_fmt == '5') {
-        file_read(fp, img->pixels, n_lines * img->w);
+        file_read(fp, img->data, n_lines * img->w);
     } else if (rs->ppm_fmt == '6') {
         uint8_t *row_buf = fb_alloc(img->w * 3, FB_ALLOC_PREFER_SPEED);
         for (int i = 0; i < n_lines; i++) {
@@ -142,7 +142,7 @@ void ppm_read(image_t *img, const char *path) {
     file_open(&fp, path, FA_READ | FA_OPEN_EXISTING);
     ppm_read_geometry(&fp, img, path, &rs);
 
-    if (!img->pixels) {
+    if (!img->data) {
         image_alloc(img, img->w * img->h * img->bpp);
     }
     ppm_read_pixels(&fp, img, img->h, &rs);
@@ -163,10 +163,10 @@ void ppm_write_subimg(image_t *img, const char *path, rectangle_t *r) {
         int len = snprintf(buffer, 20, "P5\n%d %d\n255\n", rect.w, rect.h);
         file_write(&fp, buffer, len);
         if ((rect.x == 0) && (rect.w == img->w)) {
-            file_write(&fp, img->pixels + (rect.y * img->w), rect.w * rect.h);
+            file_write(&fp, img->data + (rect.y * img->w), rect.w * rect.h);
         } else {
             for (int i = 0; i < rect.h; i++) {
-                file_write(&fp, img->pixels + ((rect.y + i) * img->w) + rect.x, rect.w);
+                file_write(&fp, img->data + ((rect.y + i) * img->w) + rect.x, rect.w);
             }
         }
     } else {

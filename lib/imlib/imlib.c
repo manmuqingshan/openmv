@@ -724,7 +724,7 @@ void imlib_save_image(image_t *img, const char *path, rectangle_t *roi, int qual
         case FORMAT_RAW: {
             file_t fp;
             file_open(&fp, path, FA_WRITE | FA_CREATE_ALWAYS);
-            file_write(&fp, img->pixels, img->w * img->h);
+            file_write(&fp, img->data, img->w * img->h);
             file_close(&fp);
             break;
         }
@@ -748,7 +748,7 @@ void imlib_save_image(image_t *img, const char *path, rectangle_t *roi, int qual
                 file_t fp;
                 char *new_path = strcat(strcpy(fb_alloc(strlen(path) + 5, FB_ALLOC_NO_HINT), path), ".raw");
                 file_open(&fp, new_path, FA_WRITE | FA_CREATE_ALWAYS);
-                file_write(&fp, img->pixels, img->w * img->h);
+                file_write(&fp, img->data, img->w * img->h);
                 file_close(&fp);
                 fb_free();
             } else {
@@ -1020,7 +1020,7 @@ int imlib_image_mean(image_t *src, int *r_mean, int *g_mean, int *b_mean) {
         }
         case PIXFORMAT_GRAYSCALE: {
             for (int i = 0; i < n; i++) {
-                r_s += src->pixels[i];
+                r_s += src->data[i];
             }
             *r_mean = r_s / n;
             *g_mean = r_s / n;
@@ -1029,7 +1029,7 @@ int imlib_image_mean(image_t *src, int *r_mean, int *g_mean, int *b_mean) {
         }
         case PIXFORMAT_RGB565: {
             for (int i = 0; i < n; i++) {
-                uint16_t p = ((uint16_t *) src->pixels)[i];
+                uint16_t p = ((uint16_t *) src->data)[i];
                 r_s += COLOR_RGB565_TO_R8(p);
                 g_s += COLOR_RGB565_TO_G8(p);
                 b_s += COLOR_RGB565_TO_B8(p);
@@ -1052,7 +1052,7 @@ int imlib_image_std(image_t *src) {
     int w = src->w;
     int h = src->h;
     int n = w * h;
-    uint8_t *data = src->pixels;
+    uint8_t *data = src->data;
 
     uint32_t s = 0, sq = 0;
     for (int i = 0; i < n; i += 2) {

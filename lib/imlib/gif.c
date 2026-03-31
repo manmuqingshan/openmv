@@ -84,7 +84,7 @@ void gif_add_frame(file_t *fp, image_t *img, uint16_t delay) {
             blk_buf[0] = 1 + block_size;
             blk_buf[1] = 0x80; // clear code
             for (int x = 0; x < block_size; x++) {
-                blk_buf[2 + x] = img->pixels[(y * BLOCK_SIZE) + x] >> 1;
+                blk_buf[2 + x] = img->data[(y * BLOCK_SIZE) + x] >> 1;
             }
             file_write(fp, blk_buf, 2 + block_size);
         }
@@ -94,7 +94,7 @@ void gif_add_frame(file_t *fp, image_t *img, uint16_t delay) {
             blk_buf[0] = 1 + block_size;
             blk_buf[1] = 0x80; // clear code
             for (int x = 0; x < block_size; x++) {
-                uint16_t pixel = ((uint16_t *) img->pixels)[(y * BLOCK_SIZE) + x];
+                uint16_t pixel = ((uint16_t *) img->data)[(y * BLOCK_SIZE) + x];
                 uint16_t r = COLOR_RGB565_TO_R5(pixel) >> 3;
                 uint16_t g = COLOR_RGB565_TO_G6(pixel) >> 3;
                 uint16_t b = COLOR_RGB565_TO_B5(pixel) >> 3;

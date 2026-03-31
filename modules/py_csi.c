@@ -244,13 +244,13 @@ static mp_obj_t py_omv_csi_alloc_extra_fb(mp_obj_t w_obj, mp_obj_t h_obj, mp_obj
     pixformat_t pixfmt = mp_obj_get_int(pixfmt_obj);
     PY_ASSERT_TRUE_MSG(IMLIB_PIXFORMAT_IS_VALID(pixfmt), "Invalid Pixel Format");
 
-    image_t img = {.w = w, .h = h, .pixfmt = pixfmt, .size = 0, .pixels = 0};
+    image_t img = {.w = w, .h = h, .pixfmt = pixfmt, .size = 0, .data = 0};
 
     // Alloc image first (could fail) then alloc RAM so that there's no leak on failure.
     mp_obj_t r = py_image_from_struct(&img);
 
     fb_alloc_mark();
-    ((image_t *) py_image_cobj(r))->pixels = fb_alloc0(image_size(&img), FB_ALLOC_NO_HINT);
+    ((image_t *) py_image_cobj(r))->data = fb_alloc0(image_size(&img), FB_ALLOC_NO_HINT);
     fb_alloc_mark_permanent(); // pixels will not be popped on exception
     return r;
 }

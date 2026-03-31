@@ -577,10 +577,7 @@ typedef struct image {
     PIXFORMAT_STRUCT;
     // Keeps a reference to the GC block when used with image_alloc/image_alloc0.
     uint8_t *_raw;
-    union {
-        uint8_t *pixels;
-        uint8_t *data;
-    };
+    uint8_t *data;
 } image_t;
 
 void image_alloc(image_t *img, size_t size);
@@ -852,27 +849,27 @@ extern const int kernel_high_pass_3[9];
     ({ __typeof__ (img) _img = (img); \
        __typeof__ (x) _x = (x);       \
        __typeof__ (y) _y = (y);       \
-       ((uint8_t *) _img->pixels)[(_y * _img->w) + _x]; })
+       ((uint8_t *) _img->data)[(_y * _img->w) + _x]; })
 
 #define IM_GET_RGB565_PIXEL(img, x, y) \
     ({ __typeof__ (img) _img = (img);  \
        __typeof__ (x) _x = (x);        \
        __typeof__ (y) _y = (y);        \
-       ((uint16_t *) _img->pixels)[(_y * _img->w) + _x]; })
+       ((uint16_t *) _img->data)[(_y * _img->w) + _x]; })
 
 #define IM_SET_GS_PIXEL(img, x, y, p) \
     ({ __typeof__ (img) _img = (img); \
        __typeof__ (x) _x = (x);       \
        __typeof__ (y) _y = (y);       \
        __typeof__ (p) _p = (p);       \
-       ((uint8_t *) _img->pixels)[(_y * _img->w) + _x] = _p; })
+       ((uint8_t *) _img->data)[(_y * _img->w) + _x] = _p; })
 
 #define IM_SET_RGB565_PIXEL(img, x, y, p) \
     ({ __typeof__ (img) _img = (img);     \
        __typeof__ (x) _x = (x);           \
        __typeof__ (y) _y = (y);           \
        __typeof__ (p) _p = (p);           \
-       ((uint16_t *) _img->pixels)[(_y * _img->w) + _x] = _p; })
+       ((uint16_t *) _img->data)[(_y * _img->w) + _x] = _p; })
 
 #define IM_EQUAL(img0, img1)             \
     ({ __typeof__ (img0) _img0 = (img0); \
@@ -880,7 +877,7 @@ extern const int kernel_high_pass_3[9];
        (_img0->w == _img1->w) && (_img0->h == _img1->h) && (_img0->pixfmt = _img1->pixfmt); })
 
 #define IM_TO_GS_PIXEL(img, x, y) \
-    (img->bpp == 1 ? img->pixels[((y) * img->w) + (x)] : COLOR_RGB565_TO_Y(((uint16_t *) img->pixels)[((y) * img->w) + (x)]) )
+    (img->bpp == 1 ? img->data[((y) * img->w) + (x)] : COLOR_RGB565_TO_Y(((uint16_t *) img->data)[((y) * img->w) + (x)]) )
 
 typedef struct simple_color {
     uint8_t G;          // Gray

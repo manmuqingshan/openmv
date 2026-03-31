@@ -3142,7 +3142,7 @@ static int fast9_corner_score(const uint8_t *p, int bstart)
 static void fast9_score(image_t *image, corner_t *corners, int num_corners, int b) {
     for (int i = 0; i < num_corners; i++) {
         corner_t *c = &corners[i];
-        c->score = fast9_corner_score(image->pixels + c->y * image->w + c->x, b);
+        c->score = fast9_corner_score(image->data + c->y * image->w + c->x, b);
     }
 }
 
@@ -3156,7 +3156,7 @@ static corner_t *fast9_detect(image_t *image, rectangle_t *roi, int *n_corners, 
 
     for(int y=roi->y+3; y<roi->y+roi->h-3; y++) {
         for(int x=roi->x+3; x<roi->x+roi->w-3; x++) {
-            const uint8_t *p = image->pixels+(y * image->w + x);
+            const uint8_t *p = image->data+(y * image->w + x);
 			int cb = *p + b;
 			int c_b= *p - b;
             if(p[pixel[0]] > cb)
