@@ -69,6 +69,7 @@ export ECHO    := $(Q)@echo
 export MAKE    := $(Q)make
 export CAT     := $(Q)cat
 export MKROMFS := mkromfs.py
+export GENLINK := gen_linker.py
 export MACHINE := $(shell uname -m)
 
 # Directories
