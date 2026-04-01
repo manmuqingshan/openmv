@@ -18,7 +18,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ########################################################################################
 # Configuration
-SDK_VERSION="1.1.0"
+SDK_VERSION="1.2.0"
 SDK_PLATFORM="$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)"
 SDK_NAME="openmv-sdk-${SDK_VERSION}-${SDK_PLATFORM}"
 BUILD_DIR="sdk"
@@ -222,7 +222,7 @@ VIRTUAL_ENV="${SDK_STAGE}/python" "${UV}" pip install \
     pytest==7.4.0 \
     ethos-u-vela==4.2.0 \
     tabulate==0.9.0 \
-    cryptography==46.0.5 \
+    cryptography==46.0.6 \
     pyelftools==0.27 \
     colorama==0.4.6 \
     mpremote==1.27.0 \
