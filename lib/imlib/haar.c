@@ -162,6 +162,7 @@ array_t *imlib_detect_objects(image_t *image, cascade_t *cascade, rectangle_t *r
 
         // Shift the filter window over the image.
         for (int y = 0; y < y2; y += cascade->step) {
+            imlib_poll_events();
             for (int x = 0; x < x2; x += cascade->step) {
                 point_t p = {x, y};
                 // If an object is detected, record the coordinates of the filter window
