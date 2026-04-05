@@ -81,8 +81,8 @@ fi
 exec "${TIMEOUT_CMD[@]}" python3 "$MPREMOTE" connect "$PORT" mount "$UNITTEST_DIR" run /dev/stdin << PYEOF
 import os, time, gc
 
+DATA_PATH = "/rom"
 TEMP_PATH = "/remote/temp"
-DATA_PATH = "/remote/data"
 TEST_DIR = "/remote/tests"
 
 test_name = "${TEST}"
