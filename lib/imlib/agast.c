@@ -218,7 +218,8 @@ static corner_t *agast58_detect(image_t *img, int b, int* num_corners, rectangle
     corner_t *corners = (corner_t*) fb_alloc(max_corners * sizeof(corner_t), FB_ALLOC_NO_HINT);
 
 	for(y=roi->y+1; y < ysizeB; y++)
-	{										
+	{
+		imlib_poll_events();
 		x=roi->x;
 		while(1)							
 		{									

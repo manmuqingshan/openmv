@@ -1059,6 +1059,7 @@ static image_int ll_angle(image_char in, float threshold,
 
     /* compute gradient on the remaining pixels */
     for (x = 0; x < p - 1; x++) {
+        imlib_poll_events();
         for (y = 0; y < n - 1; y++) {
             adr = y * p + x;
 
@@ -2542,6 +2543,7 @@ float *LineSegmentDetection(int *n_out,
 
     /* search for line segments */
     for (; list_p != NULL; list_p = list_p->next) {
+        imlib_poll_events();
         if (used->data[ list_p->x + list_p->y * used->xsize ] == NOTUSED &&
             angles->data[ list_p->x + list_p->y * angles->xsize ] != NOTDEF_INT) {
             /* there is no risk of float comparison problems here

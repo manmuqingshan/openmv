@@ -50,6 +50,7 @@ void imlib_find_lines(list_t *out, image_t *ptr, rectangle_t *roi, unsigned int 
     switch (ptr->pixfmt) {
         case PIXFORMAT_BINARY: {
             for (int y = roi->y + 1, yy = roi->y + roi->h - 1; y < yy; y += y_stride) {
+                imlib_poll_events();
                 uint32_t *row_ptr = IMAGE_COMPUTE_BINARY_PIXEL_ROW_PTR(ptr, y);
                 for (int x = roi->x + (y % x_stride) + 1, xx = roi->x + roi->w - 1; x < xx; x += x_stride) {
                     int pixel; // Sobel Algorithm Below
@@ -119,6 +120,7 @@ void imlib_find_lines(list_t *out, image_t *ptr, rectangle_t *roi, unsigned int 
         }
         case PIXFORMAT_GRAYSCALE: {
             for (int y = roi->y + 1, yy = roi->y + roi->h - 1; y < yy; y += y_stride) {
+                imlib_poll_events();
                 uint8_t *row_ptr = IMAGE_COMPUTE_GRAYSCALE_PIXEL_ROW_PTR(ptr, y);
                 for (int x = roi->x + (y % x_stride) + 1, xx = roi->x + roi->w - 1; x < xx; x += x_stride) {
                     int pixel; // Sobel Algorithm Below
@@ -188,6 +190,7 @@ void imlib_find_lines(list_t *out, image_t *ptr, rectangle_t *roi, unsigned int 
         }
         case PIXFORMAT_RGB565: {
             for (int y = roi->y + 1, yy = roi->y + roi->h - 1; y < yy; y += y_stride) {
+                imlib_poll_events();
                 uint16_t *row_ptr = IMAGE_COMPUTE_RGB565_PIXEL_ROW_PTR(ptr, y);
                 for (int x = roi->x + (y % x_stride) + 1, xx = roi->x + roi->w - 1; x < xx; x += x_stride) {
                     int pixel; // Sobel Algorithm Below
@@ -507,6 +510,7 @@ void imlib_find_circles(list_t *out, image_t *ptr, rectangle_t *roi, unsigned in
     switch (ptr->pixfmt) {
         case PIXFORMAT_BINARY: {
             for (int y = roi->y + 1, yy = roi->y + roi->h - 1; y < yy; y += y_stride) {
+                imlib_poll_events();
                 uint32_t *row_ptr = IMAGE_COMPUTE_BINARY_PIXEL_ROW_PTR(ptr, y);
                 for (int x = roi->x + (y % x_stride) + 1, xx = roi->x + roi->w - 1; x < xx; x += x_stride) {
                     int pixel; // Sobel Algorithm Below
@@ -572,6 +576,7 @@ void imlib_find_circles(list_t *out, image_t *ptr, rectangle_t *roi, unsigned in
         }
         case PIXFORMAT_GRAYSCALE: {
             for (int y = roi->y + 1, yy = roi->y + roi->h - 1; y < yy; y += y_stride) {
+                imlib_poll_events();
                 uint8_t *row_ptr = IMAGE_COMPUTE_GRAYSCALE_PIXEL_ROW_PTR(ptr, y);
                 for (int x = roi->x + (y % x_stride) + 1, xx = roi->x + roi->w - 1; x < xx; x += x_stride) {
                     int pixel; // Sobel Algorithm Below
@@ -637,6 +642,7 @@ void imlib_find_circles(list_t *out, image_t *ptr, rectangle_t *roi, unsigned in
         }
         case PIXFORMAT_RGB565: {
             for (int y = roi->y + 1, yy = roi->y + roi->h - 1; y < yy; y += y_stride) {
+                imlib_poll_events();
                 uint16_t *row_ptr = IMAGE_COMPUTE_RGB565_PIXEL_ROW_PTR(ptr, y);
                 for (int x = roi->x + (y % x_stride) + 1, xx = roi->x + roi->w - 1; x < xx; x += x_stride) {
                     int pixel; // Sobel Algorithm Below

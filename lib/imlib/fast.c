@@ -3155,6 +3155,7 @@ static corner_t *fast9_detect(image_t *image, rectangle_t *roi, int *n_corners, 
     corner_t *corners = (corner_t*) fb_alloc(max_corners * sizeof(corner_t), FB_ALLOC_NO_HINT);
 
     for(int y=roi->y+3; y<roi->y+roi->h-3; y++) {
+        imlib_poll_events();
         for(int x=roi->x+3; x<roi->x+roi->w-3; x++) {
             const uint8_t *p = image->data+(y * image->w + x);
 			int cb = *p + b;

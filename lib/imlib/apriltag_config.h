@@ -7,7 +7,7 @@
 #ifndef __APRILTAG_CONFIG_H__
 #define __APRILTAG_CONFIG_H__
 #include <stdint.h>
-#include "imlib_config.h"
+#include "imlib.h"
 #include "umm_malloc.h"
 
 // Feature disables
@@ -64,8 +64,7 @@
 #endif // APRILTAG_ENABLE_UMM_ALLOC
 
 #define apriltag_assert(x)      ((void) 0)
-extern void mp_event_handle_nowait(void);
-#define apriltag_poll_event()   mp_event_handle_nowait()
+#define apriltag_poll_events()  imlib_poll_events()
 
 // Simple strtod that avoids pulling in newlib stdio/malloc.
 // Only needs to handle small integer constants used in matd_op expressions.

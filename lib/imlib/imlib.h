@@ -118,6 +118,14 @@
 #define IM_DEG2RAD(x)            (((x) * IMLIB_PI) / 180.0f)
 #define IM_RAD2DEG(x)            (((x) * 180.0f) / IMLIB_PI)
 
+#define imlib_poll_events()                \
+    do {                                   \
+        static unsigned int _poll_ctr = 0; \
+        if (!(++_poll_ctr & 0xF)) {        \
+            mp_event_handle_nowait();      \
+        }                                  \
+    } while (0)
+
 int imlib_ksize_to_n(int ksize);
 
 /////////////////

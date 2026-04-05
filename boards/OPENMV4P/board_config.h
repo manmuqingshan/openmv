@@ -129,7 +129,7 @@
 #define OMV_DMA_MEMORY_D2                     SRAM3  // Domain 2 DMA buffers.
 #define OMV_DMA_MEMORY_D3                     SRAM4  // Domain 3 DMA buffers.
 #define OMV_GC_BLOCK0_MEMORY                  SRAM1  // Main GC block
-#define OMV_GC_BLOCK0_SIZE                    (235K)
+#define OMV_GC_BLOCK0_SIZE                    (232K)
 #define OMV_GC_BLOCK1_MEMORY                  DRAM   // Extra GC block 0.
 #define OMV_GC_BLOCK1_SIZE                    (4M)
 #define OMV_MSC_BUF_SIZE                      (2K)   // USB MSC bot data

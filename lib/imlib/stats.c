@@ -1141,6 +1141,7 @@ bool imlib_get_regression(find_lines_list_lnk_data_t *out,
                     // This is a N^2 operation that can easily blow up if the image is not threshold carefully...
 
                     for (int i = 0; i < points_count; i++) {
+                        imlib_poll_events();
                         point_t *p0 = &points[i];
                         for (int j = i + 1; j < points_count; j++) {
                             point_t *p1 = &points[j];
