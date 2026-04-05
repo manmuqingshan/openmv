@@ -33,7 +33,7 @@
 #define IMLIB_ENABLE_MATH_OPS
 
 // Enable flood_fill()
-#define IMLIB_ENABLE_FLOOD_FILL
+// #define IMLIB_ENABLE_FLOOD_FILL
 
 // Enable mean()
 #define IMLIB_ENABLE_MEAN
