@@ -4595,18 +4595,19 @@ static mp_obj_t py_image_find_lines(size_t n_args, const mp_obj_t *args, mp_map_
 static MP_DEFINE_CONST_FUN_OBJ_KW(py_image_find_lines_obj, 1, py_image_find_lines);
 #endif // IMLIB_ENABLE_FIND_LINES
 
-#if defined(IMLIB_ENABLE_FIND_LINE_SEGMENTS) && (!defined(OMV_NO_GPL))
+#ifdef IMLIB_ENABLE_FIND_LINE_SEGMENTS
 static mp_obj_t py_image_find_line_segments(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
     image_t *arg_img = py_image_cobj(args[0]);
 
     rectangle_t roi;
     py_helper_keyword_rectangle_roi(arg_img, n_args, args, 1, kw_args, &roi);
 
-    unsigned int merge_distance = py_helper_keyword_int(n_args, args, 2, kw_args, MP_OBJ_NEW_QSTR(MP_QSTR_merge_distance), 0);
-    unsigned int max_theta_diff = py_helper_keyword_int(n_args, args, 3, kw_args, MP_OBJ_NEW_QSTR(MP_QSTR_max_theta_diff), 15);
+    uint32_t merged = py_helper_keyword_int(n_args, args, 2, kw_args, MP_OBJ_NEW_QSTR(MP_QSTR_merge_distance), 0);
+    uint32_t thetad = py_helper_keyword_int(n_args, args, 3, kw_args, MP_OBJ_NEW_QSTR(MP_QSTR_max_theta_diff), 15);
+    uint32_t threshold = py_helper_keyword_int(n_args, args, 4, kw_args, MP_OBJ_NEW_QSTR(MP_QSTR_threshold), 50);
 
     list_t out;
-    imlib_lsd_find_line_segments(&out, arg_img, &roi, merge_distance, max_theta_diff);
+    imlib_edl_find_line_segments(&out, arg_img, &roi, merged, thetad, threshold);
 
     mp_obj_list_t *objects_list = mp_obj_new_list(list_size(&out), NULL);
     for (size_t i = 0; list_size(&out); i++) {
@@ -6494,7 +6495,7 @@ static const mp_rom_map_elem_t locals_dict_table[] = {
     #else
     {MP_ROM_QSTR(MP_QSTR_find_lines),          MP_ROM_PTR(&py_func_unavailable_obj)},
     #endif
-    #if defined(IMLIB_ENABLE_FIND_LINE_SEGMENTS) && (!defined(OMV_NO_GPL))
+    #ifdef IMLIB_ENABLE_FIND_LINE_SEGMENTS
     {MP_ROM_QSTR(MP_QSTR_find_line_segments),  MP_ROM_PTR(&py_image_find_line_segments_obj)},
     #else
     {MP_ROM_QSTR(MP_QSTR_find_line_segments),  MP_ROM_PTR(&py_func_unavailable_obj)},
