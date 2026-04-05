@@ -7,7 +7,7 @@
 #ifndef __APRILTAG_CONFIG_H__
 #define __APRILTAG_CONFIG_H__
 #include <stdint.h>
-#include "imlib_config.h"
+#include "imlib.h"
 #include "umm_malloc.h"
 
 // Feature disables
