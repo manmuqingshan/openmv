@@ -8,7 +8,7 @@ def unittest(data_path, temp_path):
     for y in range(100):
         for x in range(100):
             # Create gradient in narrow range
-            img.set_pixel(x, y, 100 + (x // 5))
+            img.set_pixel((x, y), 100 + (x // 5))
 
     # Get histogram before equalization
     stats_before = img.get_statistics()

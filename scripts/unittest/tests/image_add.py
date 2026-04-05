@@ -8,12 +8,12 @@ def unittest(data_path, temp_path):
     # Fill img1 with 50
     for y in range(50):
         for x in range(50):
-            img1.set_pixel(x, y, 50)
+            img1.set_pixel((x, y), 50)
 
     # Fill img2 with 100
     for y in range(50):
         for x in range(50):
-            img2.set_pixel(x, y, 100)
+            img2.set_pixel((x, y), 100)
 
     # Add img2 to img1
     img1.add(img2)
@@ -29,8 +29,8 @@ def unittest(data_path, temp_path):
 
     for y in range(50):
         for x in range(50):
-            img3.set_pixel(x, y, 200)
-            img4.set_pixel(x, y, 100)
+            img3.set_pixel((x, y), 200)
+            img4.set_pixel((x, y), 100)
 
     img3.add(img4)
 

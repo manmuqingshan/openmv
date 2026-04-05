@@ -8,8 +8,8 @@ def unittest(data_path, temp_path):
     # Fill with 0b11110000 (240) and 0b00111100 (60)
     for y in range(50):
         for x in range(50):
-            img1.set_pixel(x, y, 240)
-            img2.set_pixel(x, y, 60)
+            img1.set_pixel((x, y), 240)
+            img2.set_pixel((x, y), 60)
 
     img1.b_and(img2)
     # 240 & 60 = 0b11110000 & 0b00111100 = 0b00110000 = 48
@@ -23,8 +23,8 @@ def unittest(data_path, temp_path):
 
     for y in range(50):
         for x in range(50):
-            img3.set_pixel(x, y, 240)  # 0b11110000
-            img4.set_pixel(x, y, 15)  # 0b00001111
+            img3.set_pixel((x, y), 240)  # 0b11110000
+            img4.set_pixel((x, y), 15)  # 0b00001111
 
     img3.b_or(img4)
     # 240 | 15 = 0b11110000 | 0b00001111 = 0b11111111 = 255
@@ -38,8 +38,8 @@ def unittest(data_path, temp_path):
 
     for y in range(50):
         for x in range(50):
-            img5.set_pixel(x, y, 255)  # 0b11111111
-            img6.set_pixel(x, y, 170)  # 0b10101010
+            img5.set_pixel((x, y), 255)  # 0b11111111
+            img6.set_pixel((x, y), 170)  # 0b10101010
 
     img5.b_xor(img6)
     # 255 ^ 170 = 0b11111111 ^ 0b10101010 = 0b01010101 = 85

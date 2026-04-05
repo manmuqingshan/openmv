@@ -7,7 +7,7 @@ def unittest(data_path, temp_path):
     # Fill with mid-range values
     for y in range(50):
         for x in range(50):
-            img.set_pixel(x, y, 128)
+            img.set_pixel((x, y), 128)
 
     # Get original stats
     stats_orig = img.get_statistics()

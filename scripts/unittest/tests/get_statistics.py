@@ -7,7 +7,7 @@ def unittest(data_path, temp_path):
     # Fill with uniform value 128
     for y in range(100):
         for x in range(100):
-            img.set_pixel(x, y, 128)
+            img.set_pixel((x, y), 128)
 
     stats = img.get_statistics()
 
@@ -25,9 +25,9 @@ def unittest(data_path, temp_path):
     for y in range(100):
         for x in range(100):
             if x < 50:
-                img2.set_pixel(x, y, 0)
+                img2.set_pixel((x, y), 0)
             else:
-                img2.set_pixel(x, y, 255)
+                img2.set_pixel((x, y), 255)
 
     stats2 = img2.get_statistics()
 

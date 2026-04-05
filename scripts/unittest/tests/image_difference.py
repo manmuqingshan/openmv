@@ -8,8 +8,8 @@ def unittest(data_path, temp_path):
     # Fill with different values
     for y in range(40):
         for x in range(40):
-            img1.set_pixel(x, y, 150)
-            img2.set_pixel(x, y, 100)
+            img1.set_pixel((x, y), 150)
+            img2.set_pixel((x, y), 100)
 
     # Compute absolute difference
     img1.difference(img2)

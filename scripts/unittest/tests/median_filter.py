@@ -7,7 +7,7 @@ def unittest(data_path, temp_path):
     # Fill with base value 128
     for y in range(50):
         for x in range(50):
-            img.set_pixel(x, y, 128)
+            img.set_pixel((x, y), 128)
 
     # Add salt-and-pepper noise (random black and white pixels)
     noise_pixels = [
@@ -25,9 +25,9 @@ def unittest(data_path, temp_path):
 
     for i, (x, y) in enumerate(noise_pixels):
         if i % 2 == 0:
-            img.set_pixel(x, y, 0)  # Black noise
+            img.set_pixel((x, y), 0)  # Black noise
         else:
-            img.set_pixel(x, y, 255)  # White noise
+            img.set_pixel((x, y), 255)  # White noise
 
     # Get variance before filtering
     stats_before = img.get_statistics()

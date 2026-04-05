@@ -7,7 +7,7 @@ def unittest(data_path, temp_path):
     # Fill with gradient pattern
     for y in range(100):
         for x in range(100):
-            img_gray.set_pixel(x, y, x + y)
+            img_gray.set_pixel((x, y), x + y)
 
     # Apply binary threshold at 128
     img_gray.binary([(128, 255)])
@@ -15,7 +15,7 @@ def unittest(data_path, temp_path):
     # Verify all pixels are either 0 or 255
     for y in range(100):
         for x in range(100):
-            pixel = img_gray.get_pixel(x, y)
+            pixel = img_gray.get_pixel((x, y))
             if pixel != 0 and pixel != 255:
                 return False
 

@@ -8,9 +8,9 @@ def unittest(data_path, temp_path):
     for y in range(50):
         for x in range(50):
             if (x + y) % 2 == 0:
-                img.set_pixel(x, y, 0)
+                img.set_pixel((x, y), 0)
             else:
-                img.set_pixel(x, y, 255)
+                img.set_pixel((x, y), 255)
 
     # Get variance before filtering
     stats_before = img.get_statistics()
