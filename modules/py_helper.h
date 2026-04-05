@@ -66,6 +66,7 @@ void py_helper_keyword_float_array(size_t n_args, const mp_obj_t *args, size_t a
 float *py_helper_keyword_corner_array(size_t n_args, const mp_obj_t *args, size_t arg_index,
                                       mp_map_t *kw_args, mp_obj_t kw);
 uint py_helper_consume_array(size_t n_args, const mp_obj_t *args, size_t arg_index, size_t len, const mp_obj_t **items);
+int py_helper_arg_to_color(image_t *img, mp_obj_t obj, int default_val);
 int py_helper_keyword_color(image_t *img, size_t n_args, const mp_obj_t *args, size_t arg_index,
                             mp_map_t *kw_args, int default_val);
 void py_helper_arg_to_thresholds(const mp_obj_t arg, list_t *thresholds);

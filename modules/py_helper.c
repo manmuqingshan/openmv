@@ -372,6 +372,28 @@ uint py_helper_consume_array(size_t n_args, const mp_obj_t *args, size_t arg_ind
     }
 }
 
+int py_helper_arg_to_color(image_t *img, mp_obj_t obj, int default_val) {
+    if (obj == mp_const_none) {
+        return default_val;
+    } else if (mp_obj_is_integer(obj)) {
+        return mp_obj_get_int(obj);
+    } else {
+        mp_obj_t *arg_color;
+        mp_obj_get_array_fixed_n(obj, 3, &arg_color);
+        int c = COLOR_R8_G8_B8_TO_RGB565(__USAT(mp_obj_get_int(arg_color[0]), 8),
+                                         __USAT(mp_obj_get_int(arg_color[1]), 8),
+                                         __USAT(mp_obj_get_int(arg_color[2]), 8));
+        switch (img->pixfmt) {
+            case PIXFORMAT_BINARY:
+                return COLOR_RGB565_TO_BINARY(c);
+            case PIXFORMAT_GRAYSCALE:
+                return COLOR_RGB565_TO_GRAYSCALE(c);
+            default:
+                return c;
+        }
+    }
+}
+
 int py_helper_keyword_color(image_t *img, size_t n_args, const mp_obj_t *args, size_t arg_index,
                             mp_map_t *kw_args, int default_val) {
     mp_map_elem_t *kw_arg = kw_args ? mp_map_lookup(kw_args, MP_OBJ_NEW_QSTR(MP_QSTR_color), MP_MAP_LOOKUP) : NULL;
