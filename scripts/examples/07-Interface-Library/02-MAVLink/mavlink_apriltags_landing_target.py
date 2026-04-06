@@ -91,8 +91,8 @@ def send_landing_target_packet(tag, dist_mm, w, h):
     temp = struct.pack(
         "<qfffffbb",
         0,
-        ((tag.cx() / w) - 0.5) * h_fov,
-        ((tag.cy() / h) - 0.5) * v_fov,
+        ((tag.cx / w) - 0.5) * h_fov,
+        ((tag.cy / h) - 0.5) * v_fov,
         min(
             max(dist_mm * 0.001, MAV_LANDING_TARGET_min_distance),
             MAV_LANDING_TARGET_max_distance,
@@ -161,8 +161,8 @@ while True:
             + translation_to_mm(tags[0].z_translation(), tag_size) ** 2
         )
         send_landing_target_packet(tags[0], dist_mm, img.width(), img.height())
-        img.draw_rectangle(tags[0].rect())
-        img.draw_cross(tags[0].cx(), tags[0].cy())
+        img.draw_rectangle(tags[0].rect)
+        img.draw_cross((tags[0].cx, tags[0].cy))
         print("Distance %f mm - FPS %f" % (dist_mm, clock.fps()))
     else:
         print("FPS %f" % clock.fps())

@@ -43,5 +43,5 @@ while True:
         threshold_list, pixels_threshold=200, area_threshold=200, merge=True
     ):
         img.draw_rectangle(blob.rect())
-        img.draw_cross(blob.cx(), blob.cy())
+        img.draw_cross((blob.cx(), blob.cy()))
     print(clock.fps())

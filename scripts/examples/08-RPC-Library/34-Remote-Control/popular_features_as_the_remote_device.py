@@ -255,7 +255,7 @@ def color_detection(data):
         return bytes()  # No detections.
     for b in blobs:
         img.draw_rectangle(b.rect(), color=(255, 0, 0))
-        img.draw_cross(b.cx(), b.cy(), color=(0, 255, 0))
+        img.draw_cross((b.cx(), b.cy()), color=(0, 255, 0))
     out_blob = max(blobs, key=lambda b: b.density())
     return struct.pack("<HH", out_blob.cx(), out_blob.cy())
 

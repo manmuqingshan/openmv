@@ -51,7 +51,7 @@ for i in range(60):
         [threshold], pixels_threshold=100, area_threshold=100, merge=True, margin=10
     ):
         img.draw_rectangle(blob.rect())
-        img.draw_cross(blob.cx(), blob.cy())
+        img.draw_cross((blob.cx(), blob.cy()))
         img.draw_rectangle(r)
 
 print("Thresholds learned...")
@@ -64,5 +64,5 @@ while True:
         [threshold], pixels_threshold=100, area_threshold=100, merge=True, margin=10
     ):
         img.draw_rectangle(blob.rect())
-        img.draw_cross(blob.cx(), blob.cy())
+        img.draw_cross((blob.cx(), blob.cy()))
     print(clock.fps())

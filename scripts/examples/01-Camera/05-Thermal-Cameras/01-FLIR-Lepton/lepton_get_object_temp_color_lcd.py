@@ -84,10 +84,10 @@ while True:
     # Draw stuff on the colored image
     for blob in blobs:
         img.draw_rectangle(blob.rect())
-        img.draw_cross(blob.cx(), blob.cy())
+        img.draw_cross((blob.cx(), blob.cy()))
     for blob_stat in blob_stats:
         img.draw_string(
-            blob_stat[0], blob_stat[1] - 10, "%.2f C" % blob_stat[2], mono_space=False
+            (blob_stat[0], blob_stat[1] - 10), "%.2f C" % blob_stat[2], mono_space=False
         )
     lcd.write(img)
     print(

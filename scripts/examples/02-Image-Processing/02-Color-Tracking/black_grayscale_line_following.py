@@ -63,7 +63,7 @@ while True:
 
             # Draw a rect around the blob.
             img.draw_rectangle(largest_blob.rect())
-            img.draw_cross(largest_blob.cx(), largest_blob.cy())
+            img.draw_cross((largest_blob.cx(), largest_blob.cy()))
 
             centroid_sum += largest_blob.cx() * r[4]  # r[4] is the roi weight.
 

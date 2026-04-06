@@ -67,10 +67,9 @@ while True:
     ):
         stats = img.get_statistics(thresholds=threshold_list, roi=blob.rect())
         img.draw_rectangle(blob.rect())
-        img.draw_cross(blob.cx(), blob.cy())
+        img.draw_cross((blob.cx(), blob.cy()))
         img.draw_string(
-            blob.x(),
-            blob.y() - 10,
+            (blob.x(), blob.y() - 10),
             "%.2f C" % map_g_to_temp(stats.mean()),
             mono_space=False,
         )
