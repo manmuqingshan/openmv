@@ -302,7 +302,13 @@ static const mp_rom_map_elem_t globals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_UXGA),                MP_ROM_INT(DISPLAY_RESOLUTION_UXGA)     },
     { MP_ROM_QSTR(MP_QSTR_HD),                  MP_ROM_INT(DISPLAY_RESOLUTION_HD)       },
     { MP_ROM_QSTR(MP_QSTR_FHD),                 MP_ROM_INT(DISPLAY_RESOLUTION_FHD)      },
+    #if MICROPY_PY_TV
+    { MP_ROM_QSTR(MP_QSTR_IOCTL_CHANNEL),       MP_ROM_INT(DISPLAY_IOCTL_CHANNEL)       },
+    #endif
 
+    #if MICROPY_PY_TV
+    { MP_ROM_QSTR(MP_QSTR_TVDisplay),           MP_ROM_PTR(&py_tv_display_type)         },
+    #endif
     #ifdef OMV_SPI_DISPLAY_CONTROLLER
     { MP_ROM_QSTR(MP_QSTR_SPIDisplay),          MP_ROM_PTR(&py_spi_display_type)        },
     #endif
