@@ -20,7 +20,7 @@ DEBUGGER ?= JLINK
 
 # Dummy target to run sdk/clean
 ifeq ($(TARGET),)
-  ifeq ($(filter sdk clean,$(MAKECMDGOALS)),)
+  ifeq ($(filter sdk,$(MAKECMDGOALS)),)
     $(error Invalid or no TARGET specified)
   else
     TARGET=OPENMV4
@@ -74,7 +74,7 @@ export MACHINE := $(shell uname -m)
 
 # Directories
 export TOP_DIR:=$(shell pwd)
-export BUILD:=$(TOP_DIR)/build
+export BUILD:=$(TOP_DIR)/build/$(TARGET)
 export TOOLS_DIR:=$(TOP_DIR)/tools
 export FW_DIR:=$(BUILD)/bin
 export BOOT_DIR=boot
