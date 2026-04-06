@@ -89,6 +89,7 @@ typedef struct _py_display_p_t {
     void (*set_backlight) (py_display_obj_t *self, uint32_t intensity);
     int (*bus_write) (py_display_obj_t *self, uint8_t cmd, uint8_t *args, size_t n_args, bool dcs);
     int (*bus_read) (py_display_obj_t *self, uint8_t cmd, uint8_t *args, size_t n_args, uint8_t *buf, size_t len, bool dcs);
+    mp_obj_t (*ioctl) (py_display_obj_t *self, size_t n_args, const mp_obj_t *args);
 } py_display_p_t;
 
 extern const mp_obj_type_t py_spi_display_type;
