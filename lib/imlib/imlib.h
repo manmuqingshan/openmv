@@ -120,7 +120,7 @@
 #define imlib_poll_events()                \
     do {                                   \
         static unsigned int _poll_ctr = 0; \
-        if (!(++_poll_ctr & 0xF)) {        \
+        if (!(++_poll_ctr & 0x1F)) {       \
             mp_event_handle_nowait();      \
         }                                  \
     } while (0)
