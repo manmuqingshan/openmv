@@ -118,6 +118,10 @@ uma_pool_t *uma_pool_find(const void *ptr, size_t size, uint32_t flags) {
         if (tlsf_alloc_size_max(uma_pools[i].tlsf) < size) {
             continue;
         }
+        // Never place persistent allocations in transient pools.
+        if ((flags & UMA_PERSIST) && (uma_pools[i].flags & UMA_TRANSIENT)) {
+            continue;
+        }
         // Exact attribute match (also handles flags==0 -> generic pool).
         if (flags == uma_pools[i].flags) {
             return &uma_pools[i];
@@ -306,6 +310,48 @@ void uma_free(void *ptr) {
     tlsf_free(pool->tlsf, ptr);
 }
 
+void uma_transient_acquire(void) {
+    for (int i = 0; i < uma_num_pools; i++) {
+        uma_pool_t *p = &uma_pools[i];
+        if (!(p->flags & UMA_TRANSIENT)) {
+            continue;
+        }
+        if (p->free != p->size) {
+            mp_raise_msg(&mp_type_MemoryError,
+                         MP_ERROR_TEXT("Transient pool in use"));
+        }
+        #ifdef __DCACHE_PRESENT
+        if (p->peak == 0) {
+            SCB_InvalidateDCache_by_Addr((void *) p->base, tlsf_size() + tlsf_pool_overhead());
+        } else {
+            SCB_InvalidateDCache_by_Addr((void *) p->base, p->end - p->base);
+        }
+        #endif
+    }
+}
+
+void uma_transient_release(void) {
+    for (int i = 0; i < uma_num_pools; i++) {
+        uma_pool_t *p = &uma_pools[i];
+        if (!(p->flags & UMA_TRANSIENT)) {
+            continue;
+        }
+        #ifdef __DCACHE_PRESENT
+        SCB_InvalidateDCache_by_Addr((void *) p->base, p->end - p->base);
+        #endif
+
+        void *mem = (void *) p->base;
+        size_t size = p->end - p->base;
+
+        p->tlsf = tlsf_create_with_pool(mem, size);
+        if (!p->tlsf) {
+            uma_fail();
+        }
+        p->free = p->size;
+        p->peak = 0;
+    }
+}
+
 void uma_collect(void) {
     for (int i = 0; i < uma_num_pools; i++) {
         size_t nblocks = 0;
@@ -372,13 +418,14 @@ void uma_print_stats(int index) {
 
         printf("pool %d: base=0x%08lx size=%lu "
                "used=%lu(%lu) free=%lu(%lu) persist=%lu(%lu) "
-               "peak=%lu flags=%s%s\n",
+               "peak=%lu flags=%s%s%s\n",
                i, (unsigned long) p->base, (unsigned long) p->size,
                (unsigned long) stats.used_bytes, (unsigned long) stats.used_count,
                (unsigned long) stats.free_bytes, (unsigned long) stats.free_count,
                (unsigned long) stats.persist_bytes, (unsigned long) stats.persist_count,
                (unsigned long) stats.peak_bytes,
                (p->flags & UMA_FAST) ? "FAST|" : "",
-               (p->flags & UMA_DTCM) ? "DTCM|" : "");
+               (p->flags & UMA_DTCM) ? "DTCM|" : "",
+               (p->flags & UMA_TRANSIENT) ? "TRANSIENT|" : "");
     }
 }
