@@ -57,7 +57,7 @@ IMLIB_SRC_C += \
     lbp.c \
     line.c \
     lodepng.c \
-    lsd.c \
+    edl.c \
     mathop.c \
     mjpeg.c \
     orb.c \
