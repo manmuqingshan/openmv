@@ -94,7 +94,6 @@
 
 #include "py_image.h"
 #include "py_fir.h"
-#include "py_tv.h"
 #include "py_imu.h"
 #include "py_audio.h"
 
@@ -217,9 +216,6 @@ soft_reset:
     #if MICROPY_PY_FIR
     py_fir_init0();
     #endif // MICROPY_PY_FIR
-    #if MICROPY_PY_TV
-    py_tv_init0();
-    #endif
     uma_init();
     imlib_init();
     readline_init0();
