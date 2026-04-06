@@ -295,7 +295,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(test_uma_collect_mixed_obj, test_uma_collect_mi
 // Test that stats reflect allocations.
 static mp_obj_t test_uma_stats(void) {
     uma_stats_t s;
-    uma_get_stats(&s);
+    uma_get_stats(-1, &s);
     if (s.used_count != 0) {
         return mp_const_false;
     }
@@ -304,7 +304,7 @@ static mp_obj_t test_uma_stats(void) {
     void *b = uma_malloc(200, 0);
     void *c = uma_malloc(300, 0);
 
-    uma_get_stats(&s);
+    uma_get_stats(-1, &s);
     if (s.used_count != 3) {
         uma_free(a);
         uma_free(b);
@@ -316,7 +316,7 @@ static mp_obj_t test_uma_stats(void) {
     uma_free(b);
     uma_free(c);
 
-    uma_get_stats(&s);
+    uma_get_stats(-1, &s);
     if (s.used_count != 0) {
         return mp_const_false;
     }
@@ -331,14 +331,14 @@ static mp_obj_t test_uma_collect_stats(void) {
     uma_malloc(200, 0);
 
     uma_stats_t s;
-    uma_get_stats(&s);
+    uma_get_stats(-1, &s);
     if (s.used_count != 2) {
         return mp_const_false;
     }
 
     uma_collect();
 
-    uma_get_stats(&s);
+    uma_get_stats(-1, &s);
     if (s.used_count != 0) {
         return mp_const_false;
     }

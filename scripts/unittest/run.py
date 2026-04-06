@@ -44,9 +44,9 @@ def print_result(test, result, time_ms, stats):
     print(s + padding + colored_result + " (%dms)" % time_ms)
 
     if (result == "FAILED" or result == "LEAKED") and stats is not None:
-        used, free, persist, used_bytes, free_bytes, persist_bytes = stats
-        print(COLOR_RED + "used: %d (%d B)  free: %d (%d B)  persist: %d (%d B)" %
-              (used, used_bytes, free, free_bytes, persist, persist_bytes) + COLOR_RESET)
+        used, free, persist, used_bytes, free_bytes, persist_bytes, peak_bytes = stats
+        print(COLOR_RED + "used: %d (%d B)  free: %d (%d B)  persist: %d (%d B)  peak: %d B" %
+              (used, used_bytes, free, free_bytes, persist, persist_bytes, peak_bytes) + COLOR_RESET)
 
 def main():
     passed_count = 0
