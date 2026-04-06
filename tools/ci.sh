@@ -62,7 +62,7 @@ ci_build_target() {
         make -j$(nproc) TARGET=${1} PROFILE_ENABLE=${3} PROFILE_HASH=64
         # Copy artifacts if enabled
         if [ "$4" == "true" ]; then
-            mv build/bin ${1}
+            mv build/${1}/bin ${1}
         fi
     fi
 }
