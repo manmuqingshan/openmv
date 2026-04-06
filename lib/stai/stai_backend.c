@@ -43,6 +43,7 @@
 #include "py/binary.h"
 #include "py/gc.h"
 #include "py_ml.h"
+#include "umalloc.h"
 
 #include "ll_aton_runtime.h"
 #include "ll_aton_platform.h"
@@ -248,6 +249,8 @@ int ml_backend_run_inference(py_ml_model_obj_t *model) {
     LL_ATON_RT_RetValues_t ll_aton_rt_ret;
     ml_backend_state_t *state = (ml_backend_state_t *) model->state;
 
+    uma_transient_acquire();
+
     // Flush input buffers.
     for (size_t i = 0; i < model->inputs_size; i++) {
         const LL_Buffer_InfoTypeDef *buf = ll_aton_reloc_get_input_buffers_info(&state->nn_inst, i);
@@ -272,6 +275,7 @@ int ml_backend_run_inference(py_ml_model_obj_t *model) {
 
     LL_ATON_RT_DeInit_Network(&state->nn_inst);
     LL_ATON_RT_RuntimeDeInit();
+    uma_transient_release();
 
     return 0;
 }

@@ -165,6 +165,9 @@
 #define OMV_UMA_BLOCK2_MEMORY               DTCM   // DTCM UMA pool.
 #define OMV_UMA_BLOCK2_SIZE                 (128K)
 #define OMV_UMA_BLOCK2_FLAGS                (UMA_DTCM)
+#define OMV_UMA_BLOCK3_MEMORY               SRAM3 // NPU AXI SRAM pool.
+#define OMV_UMA_BLOCK3_SIZE                 (1792K)
+#define OMV_UMA_BLOCK3_FLAGS                (UMA_FAST | UMA_DTCM | UMA_TRANSIENT)
 #define OMV_MSC_BUF_SIZE                    (4K)   // USB MSC bot data
 #define OMV_VOSPI_DMA_BUFFER                ".d2_dma_buffer"
 
@@ -177,14 +180,8 @@
 #define OMV_SRAM1_LENGTH                    1M          // 1MB
 #define OMV_SRAM2_ORIGIN                    0x34100000  // AXISRAM2
 #define OMV_SRAM2_LENGTH                    1M          // 1MB
-#define OMV_SRAM3_ORIGIN                    0x34200000  // AXISRAM3
-#define OMV_SRAM3_LENGTH                    448K        // 448KB
-#define OMV_SRAM4_ORIGIN                    0x34270000  // AXISRAM4
-#define OMV_SRAM4_LENGTH                    448K        // 448KB
-#define OMV_SRAM5_ORIGIN                    0x342E0000  // AXISRAM5
-#define OMV_SRAM5_LENGTH                    448K        // 448KB
-#define OMV_SRAM6_ORIGIN                    0x34350000  // AXISRAM6
-#define OMV_SRAM6_LENGTH                    448K        // 448KB
+#define OMV_SRAM3_ORIGIN                    0x34200000  // AXISRAM3-6 (NPU AXI SRAMs)
+#define OMV_SRAM3_LENGTH                    1792K       // 4 x 448KB
 #define OMV_SRAM7_ORIGIN                    0x38000000  // AHBSRAM1 + AHBSRAM2 combined
 #define OMV_SRAM7_LENGTH                    32K         // 16KB + 16KB = 32KB
 #define OMV_DRAM_ORIGIN                     0x90000000  // XSPI1
