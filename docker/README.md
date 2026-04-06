@@ -5,10 +5,12 @@ To build the firmware using docker, follow the following steps:
 ```
 git clone https://github.com/openmv/openmv.git --depth=1
 cd openmv/docker
-make TARGET=<TARGET NAME>
+make SDK_DIR=<path/to/openmv-sdk> TARGET=<TARGET NAME>
 ```
 
-After building you should see the target build output under `docker/build/<TARGET_NAME>`.
+The `SDK_DIR` variable should point to the OpenMV SDK installation directory (defaults to `$HOME/openmv-sdk-<version>`).
+
+After building you should see the target build output under `build/<TARGET_NAME>`.
 
 ## Testing HTTP POST/GET
 
