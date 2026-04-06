@@ -458,7 +458,7 @@ void DCMI_DMAConvCpltUser(DCMI_HandleTypeDef *hdcmi, uint32_t addr) {
 
     if (csi->drop_frame) {
         #if USE_MDMA
-        if (!csi->transpose) {
+        if (!csi->transpose && csi->pixformat != PIXFORMAT_JPEG) {
             HAL_NVIC_DisableIRQ(csi->dma_irqn);
         }
         #endif
