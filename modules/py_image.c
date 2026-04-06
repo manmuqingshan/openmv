@@ -6183,7 +6183,7 @@ static mp_obj_t py_image_find_features(size_t n_args, const mp_obj_t *pos_args, 
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args - 2, pos_args + 2, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
     cascade->threshold = py_helper_arg_to_float(args[ARG_threshold].u_obj, 0.5f);
-    cascade->scale_factor = py_helper_arg_to_float(args[ARG_scale].u_obj, 1.5f);
+    cascade->scale = py_helper_arg_to_float(args[ARG_scale].u_obj, 1.5f);
     rectangle_t roi = py_helper_arg_to_roi(args[ARG_roi].u_obj, image);
 
     // Make sure ROI is bigger than feature size

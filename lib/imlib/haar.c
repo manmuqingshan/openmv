@@ -134,7 +134,7 @@ array_t *imlib_detect_objects(image_t *image, cascade_t *cascade, rectangle_t *r
     imlib_integral_mw_alloc(&ssq, roi->w, mw_h + 1);
 
     // Iterate over the image pyramid
-    for (float factor = 1.0f; ; factor *= cascade->scale_factor) {
+    for (float factor = 1.0f; ; factor *= cascade->scale) {
         // Set the scaled width and height
         int szw = roi->w / factor;
         int szh = roi->h / factor;

@@ -972,7 +972,7 @@ typedef struct cascade {
     int std;                        // Image standard deviation.
     int step;                       // Image scanning factor.
     float threshold;                // Detection threshold.
-    float scale_factor;             // Image scaling factor.
+    float scale;                    // Image scaling factor.
     int n_stages;                   // Number of stages in the cascade.
     int n_features;                 // Number of features in the cascade.
     int n_rectangles;               // Number of rectangles in the cascade.
