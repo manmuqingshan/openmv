@@ -1533,8 +1533,6 @@ size_t trace_line(image_t *ptr, line_t *l, int *theta_buffer, uint32_t *mag_buff
 void merge_alot(list_t *out, int threshold, int theta_threshold); // helper/internal
 void imlib_find_lines(list_t *out, image_t *ptr, rectangle_t *roi, unsigned int x_stride, unsigned int y_stride,
                       uint32_t threshold, unsigned int theta_margin, unsigned int rho_margin);
-void imlib_lsd_find_line_segments(list_t *out, image_t *ptr, rectangle_t *roi,
-                                  unsigned int merge_distance, unsigned int max_theta_diff);
 void imlib_edl_find_line_segments(list_t *out, image_t *ptr, rectangle_t *roi,
                                   unsigned int merge_distance, unsigned int max_theta_diff, unsigned int threshold);
 void imlib_find_circles(list_t *out, image_t *ptr, rectangle_t *roi, unsigned int x_stride, unsigned int y_stride,
