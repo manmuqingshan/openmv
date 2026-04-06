@@ -26,6 +26,7 @@
 #include "board_config.h"
 #if (OMV_JPEG_CODEC_ENABLE == 1)
 #include "imlib.h"
+#include "omv_common.h"
 
 #include "py/mphal.h"
 #include "py/runtime.h"
@@ -747,14 +748,16 @@ void jpeg_decompress(image_t *dst, image_t *src) {
                     // Invalidate any cached reads for the previous line that was just written.
                     if ((y_offset - mcu_h) >= 0) {
                         uint16_t *previous_rp = IMAGE_COMPUTE_RGB565_PIXEL_ROW_PTR(dst, (y_offset - mcu_h));
-                        SCB_InvalidateDCache_by_Addr((uint32_t *) previous_rp, dst->w * mcu_h * sizeof(uint16_t));
+                        SCB_InvalidateDCache_by_Addr((uint32_t *) OMV_ALIGN_DOWN(previous_rp, OMV_DMA_ALIGNMENT),
+                                                     dst->w * mcu_h * sizeof(uint16_t));
                     }
 
                     HAL_DMA2D_PollForTransfer(&DMA2D_Handle, JPEG_CODEC_TIMEOUT);
 
                     // For the last row invalidate any cached reads for the line that was just written.
                     if ((y_offset + mcu_h) >= src->h) {
-                        SCB_InvalidateDCache_by_Addr((uint32_t *) rp, dst->w * mcu_h * sizeof(uint16_t));
+                        SCB_InvalidateDCache_by_Addr((uint32_t *) OMV_ALIGN_DOWN(rp, OMV_DMA_ALIGNMENT),
+                                                     dst->w * dy * sizeof(uint16_t));
                     }
 
                     break;
