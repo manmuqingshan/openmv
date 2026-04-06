@@ -41,26 +41,36 @@ static mp_obj_t py_umalloc_collect(void) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(py_umalloc_collect_obj, py_umalloc_collect);
 
-static mp_obj_t py_umalloc_stats(void) {
+static mp_obj_t py_umalloc_stats(size_t n_args, const mp_obj_t *args) {
+    int index = (n_args > 0) ? mp_obj_get_int(args[0]) : -1;
     uma_stats_t s;
-    uma_get_stats(&s);
-    mp_obj_t tuple[6] = {
+    uma_get_stats(index, &s);
+    mp_obj_t tuple[7] = {
         mp_obj_new_int(s.used_count),
         mp_obj_new_int(s.free_count),
         mp_obj_new_int(s.persist_count),
         mp_obj_new_int(s.used_bytes),
         mp_obj_new_int(s.free_bytes),
         mp_obj_new_int(s.persist_bytes),
+        mp_obj_new_int(s.peak_bytes),
     };
-    return mp_obj_new_tuple(6, tuple);
+    return mp_obj_new_tuple(7, tuple);
 }
-static MP_DEFINE_CONST_FUN_OBJ_0(py_umalloc_stats_obj, py_umalloc_stats);
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(py_umalloc_stats_obj, 0, 1, py_umalloc_stats);
+
+static mp_obj_t py_umalloc_print_stats(size_t n_args, const mp_obj_t *args) {
+    int index = (n_args > 0) ? mp_obj_get_int(args[0]) : -1;
+    uma_print_stats(index);
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(py_umalloc_print_stats_obj, 0, 1, py_umalloc_print_stats);
 
 static const mp_rom_map_elem_t globals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__),   MP_OBJ_NEW_QSTR(MP_QSTR_umalloc) },
     { MP_ROM_QSTR(MP_QSTR_init),       MP_ROM_PTR(&py_umalloc_init_obj) },
     { MP_ROM_QSTR(MP_QSTR_collect),    MP_ROM_PTR(&py_umalloc_collect_obj) },
     { MP_ROM_QSTR(MP_QSTR_stats),      MP_ROM_PTR(&py_umalloc_stats_obj) },
+    { MP_ROM_QSTR(MP_QSTR_print_stats), MP_ROM_PTR(&py_umalloc_print_stats_obj) },
 };
 
 static MP_DEFINE_CONST_DICT(globals_dict, globals_dict_table);

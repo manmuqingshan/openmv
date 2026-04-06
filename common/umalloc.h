@@ -68,6 +68,7 @@ typedef struct {
     size_t used_bytes;
     size_t persist_count;
     size_t persist_bytes;
+    size_t peak_bytes;
 } uma_stats_t;
 
 void uma_init0(void);
@@ -84,7 +85,8 @@ void *uma_realloc(void *ptr, size_t size, uint32_t flags);
 void  uma_free(void *ptr);
 void  uma_collect(void);
 size_t uma_avail(uint32_t flags);
-void uma_get_stats(uma_stats_t *stats);
+void uma_get_stats(int index, uma_stats_t *stats);
+void uma_print_stats(int index);
 
 #endif // !LINKER_SCRIPT
 #endif /* __UMALLOC_H__ */

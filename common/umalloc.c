@@ -338,9 +338,47 @@ static void uma_block_walker(void *ptr, void *user) {
     }
 }
 
-void uma_get_stats(uma_stats_t *stats) {
+void uma_get_stats(int index, uma_stats_t *stats) {
+    int start = 0, end = uma_num_pools;
+
+    if (index >= 0 && index < uma_num_pools) {
+        start = index;
+        end = index + 1;
+    }
+
     memset(stats, 0, sizeof(*stats));
-    for (int i = 0; i < uma_num_pools; i++) {
+
+    for (int i = start; i < end; i++) {
         tlsf_walk(uma_pools[i].tlsf, uma_block_walker, stats);
+    }
+
+    if (end - start == 1) {
+        stats->peak_bytes = uma_pools[start].peak;
+    }
+}
+
+void uma_print_stats(int index) {
+    int start = 0, end = uma_num_pools;
+
+    if (index >= 0 && index < uma_num_pools) {
+        start = index;
+        end = index + 1;
+    }
+
+    for (int i = start; i < end; i++) {
+        uma_pool_t *p = &uma_pools[i];
+        uma_stats_t stats;
+        uma_get_stats(i, &stats);
+
+        printf("pool %d: base=0x%08lx size=%lu "
+               "used=%lu(%lu) free=%lu(%lu) persist=%lu(%lu) "
+               "peak=%lu flags=%s%s\n",
+               i, (unsigned long) p->base, (unsigned long) p->size,
+               (unsigned long) stats.used_bytes, (unsigned long) stats.used_count,
+               (unsigned long) stats.free_bytes, (unsigned long) stats.free_count,
+               (unsigned long) stats.persist_bytes, (unsigned long) stats.persist_count,
+               (unsigned long) stats.peak_bytes,
+               (p->flags & UMA_FAST) ? "FAST|" : "",
+               (p->flags & UMA_DTCM) ? "DTCM|" : "");
     }
 }
