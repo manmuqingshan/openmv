@@ -120,6 +120,7 @@ int omv_i2c_deinit(omv_i2c_t *i2c) {
     if (i2c->initialized) {
         // TODO
         i2c->initialized = false;
+        i2c->i2c_suspended = false;
     }
     return 0;
 }
@@ -197,6 +198,7 @@ static int omv_i2c_transfer_timeout(omv_i2c_t *i2c, lpi2c_master_transfer_t *tra
 }
 
 int omv_i2c_read(omv_i2c_t *i2c, uint8_t slv_addr, uint8_t *buf, uint32_t len, uint32_t flags) {
+    i2c->i2c_suspended = false;
     lpi2c_master_transfer_t xfer = {
         .data = buf,
         .dataSize = len,
@@ -225,7 +227,16 @@ int omv_i2c_write(omv_i2c_t *i2c, uint8_t slv_addr, uint8_t *buf, uint32_t len, 
     if (flags & (OMV_I2C_XFER_NO_STOP | OMV_I2C_XFER_SUSPEND)) {
         xfer.flags |= kLPI2C_TransferNoStopFlag;
     }
-    return omv_i2c_transfer_timeout(i2c, &xfer);
+    if (i2c->i2c_suspended) {
+        // Continue a suspended write: no new START.
+        xfer.flags |= kLPI2C_TransferNoStartFlag;
+    }
+    i2c->i2c_suspended = !!(flags & OMV_I2C_XFER_SUSPEND);
+    int ret = omv_i2c_transfer_timeout(i2c, &xfer);
+    if (ret != 0) {
+        i2c->i2c_suspended = false;
+    }
+    return ret;
 }
 
 int omv_i2c_pulse_scl(omv_i2c_t *i2c) {
