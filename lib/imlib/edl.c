@@ -80,6 +80,7 @@ static void compute_gradient(const uint8_t *gray, int w, int h,
     memset(dir, 0, w * h);
 
     for (int y = 1; y < h - 1; y++) {
+        imlib_poll_events();
         for (int x = 1; x < w - 1; x++) {
             const uint8_t *row_m1 = gray + (y - 1) * w;
             const uint8_t *row_0 = gray + y * w;
