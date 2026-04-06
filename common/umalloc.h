@@ -38,6 +38,7 @@
 #define UMA_DMA_D1          (1 << 3)
 #define UMA_DMA_D2          (1 << 4)
 #define UMA_DMA_D3          (1 << 5)
+#define UMA_TRANSIENT       (1 << 6)
 #define UMA_MEM_ATTR_MASK   (0xFF)
 
 // Allocation flags (bits 8+)
@@ -85,6 +86,8 @@ void *uma_realloc(void *ptr, size_t size, uint32_t flags);
 void  uma_free(void *ptr);
 void  uma_collect(void);
 size_t uma_avail(uint32_t flags);
+void uma_transient_acquire(void);
+void uma_transient_release(void);
 void uma_get_stats(int index, uma_stats_t *stats);
 void uma_print_stats(int index);
 
