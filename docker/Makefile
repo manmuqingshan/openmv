@@ -31,7 +31,7 @@ SDK_DIR ?= $(HOME)/openmv-sdk-$(SDK_VERSION)
 build-image:
 	docker build \
         -t $(DOCKER_IMAGE_NAME):$(DOCKER_TAG) \
-        -f $(DOCKERFILE_PATH) ../
+        -f $(DOCKERFILE_PATH) .
 
 # Run the container with a volume mount to build the firmware
 build-firmware: build-image
@@ -39,7 +39,7 @@ build-firmware: build-image
         -e TARGET=$(TARGET) \
         -e HOST_UID=$(shell id -u) \
         -e HOST_GID=$(shell id -g) \
-        -v $(PWD)/build:/workspace/build \
+        -v $(realpath ../):/workspace \
         -v $(SDK_DIR):/workspace/sdk \
         --name $(CONTAINER_NAME) \
         $(DOCKER_IMAGE_NAME):$(DOCKER_TAG) docker/build.sh
@@ -48,7 +48,7 @@ build-firmware: build-image
 shell:
 	docker run --rm -it \
         -e shell="true" \
-        -v $(PWD)/build:/workspace/build \
+        -v $(realpath ../):/workspace \
         $(DOCKER_IMAGE_NAME):$(DOCKER_TAG) bash
 
 .DEFAULT_GOAL := build-firmware
