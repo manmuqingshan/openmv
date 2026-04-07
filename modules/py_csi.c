@@ -157,9 +157,7 @@ static mp_obj_t py_omv_csi_snapshot(size_t n_args, const mp_obj_t *args, mp_map_
     #endif // MICROPY_PY_IMU
 
     mp_obj_t image = py_image(0, 0, 0, 0, 0);
-    uint32_t flags = OMV_CSI_FLAG_UPDATE_FB;
-
-    int error = omv_csi_snapshot(csi, (image_t *) py_image_cobj(image), flags);
+    int error = omv_csi_snapshot(csi, (image_t *) py_image_cobj(image), 0);
     if (error != 0) {
         omv_csi_raise_error(error);
     }

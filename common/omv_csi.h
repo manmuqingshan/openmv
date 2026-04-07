@@ -193,9 +193,8 @@ typedef enum {
 } omv_csi_framesize_t;
 
 typedef enum {
-    OMV_CSI_FLAG_UPDATE_FB      = (1 << 0),
-    OMV_CSI_FLAG_NON_BLOCK      = (1 << 1),
-    OMV_CSI_FLAG_NO_POST        = (1 << 2),
+    OMV_CSI_FLAG_NON_BLOCK      = (1 << 0),
+    OMV_CSI_FLAG_NO_POST        = (1 << 1),
     OMV_CSI_FLAG_IOCTL_ABORT    = (1 << 8),
 } omv_csi_flags_t;
 

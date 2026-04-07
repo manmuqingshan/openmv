@@ -191,11 +191,10 @@ static mp_obj_t py_csi_flush(mp_obj_t self_in) {
 static MP_DEFINE_CONST_FUN_OBJ_1(py_csi_flush_obj, py_csi_flush);
 
 static mp_obj_t py_csi_snapshot(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
-    enum { ARG_time, ARG_frames, ARG_update, ARG_blocking, ARG_image };
+    enum { ARG_time, ARG_frames, ARG_blocking, ARG_image };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_time, MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = -1} },
         { MP_QSTR_frames, MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = -1} },
-        { MP_QSTR_update, MP_ARG_BOOL | MP_ARG_KW_ONLY,  {.u_bool = true} },
         { MP_QSTR_blocking, MP_ARG_BOOL | MP_ARG_KW_ONLY,  {.u_bool = true} },
         { MP_QSTR_image, MP_ARG_OBJ | MP_ARG_KW_ONLY,  {.u_rom_obj = MP_ROM_NONE} },
     };
@@ -208,10 +207,6 @@ static mp_obj_t py_csi_snapshot(size_t n_args, const mp_obj_t *pos_args, mp_map_
     image_t image = {0};
     mp_int_t time = args[ARG_time].u_int;
     mp_int_t frames = args[ARG_frames].u_int;
-
-    if (args[ARG_update].u_bool) {
-        flags |= OMV_CSI_FLAG_UPDATE_FB;
-    }
 
     if (!args[ARG_blocking].u_bool) {
         flags |= OMV_CSI_FLAG_NON_BLOCK;
