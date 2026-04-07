@@ -156,6 +156,10 @@ static mp_obj_t py_omv_csi_snapshot(size_t n_args, const mp_obj_t *args, mp_map_
     // We're not setting the full range on roll to prevent oscillation.
     #endif // MICROPY_PY_IMU
 
+    // Always set the main CSI as the stream source.
+    framebuffer_t *stream_fb = framebuffer_get(FB_STREAM_ID);
+    stream_fb->source = csi->chip_id;
+
     mp_obj_t image = py_image(0, 0, 0, 0, 0);
     int error = omv_csi_snapshot(csi, (image_t *) py_image_cobj(image), 0);
     if (error != 0) {
