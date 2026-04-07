@@ -81,6 +81,7 @@ typedef struct framebuffer {
     uint8_t enabled;        // Enable/disable framebuffer
     uint8_t quality;        // JPEG compression quality (1-100)
     uint8_t raw_enabled;    // Enable raw streaming
+    uint32_t source;        // Stream buffer source ID.
     size_t raw_size;        // Raw buffer size.
     char *raw_base;         // Raw buffer address.
     size_t buf_size;        // Vbuffer size.
