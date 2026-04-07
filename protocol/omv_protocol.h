@@ -46,7 +46,7 @@
 
 #define OMV_PROTOCOL_VERSION_MAJOR          (1)
 #define OMV_PROTOCOL_VERSION_MINOR          (0)
-#define OMV_PROTOCOL_VERSION_PATCH          (0)
+#define OMV_PROTOCOL_VERSION_PATCH          (1)
 
 #define OMV_PROTOCOL_SYNC_SIZE              (2)
 #define OMV_PROTOCOL_SYNC_WORD              (0xD5AA)
