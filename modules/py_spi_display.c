@@ -137,31 +137,28 @@ static void spi_display_command(py_display_obj_t *self, uint8_t cmd, uint8_t arg
 static void spi_display_callback(omv_spi_t *spi, void *userdata, void *buf) {
     py_display_obj_t *self = (py_display_obj_t *) userdata;
 
-    static uint8_t *spi_state_write_addr = NULL;
-    static size_t spi_state_write_count = 0;
-
-    // If userdata is not null then it means that we are being kicked off.
+    // If buf is not null then it means that we are being kicked off.
     if (buf == NULL) {
-        spi_state_write_count = 0;
+        self->spi_write_count = 0;
     }
 
-    if (!spi_state_write_count) {
-        spi_state_write_addr = (uint8_t *) self->framebuffers[self->framebuffer_tail];
-        spi_state_write_count = self->width * self->height;
+    if (!self->spi_write_count) {
+        self->spi_write_addr = (uint8_t *) self->framebuffers[self->framebuffer_tail];
+        self->spi_write_count = self->width * self->height;
 
         if (self->byte_swap) {
-            spi_state_write_count *= 2;
+            self->spi_write_count *= 2;
         }
 
         self->framebuffer_head = self->framebuffer_tail;
     }
 
-    size_t spi_state_write_limit = (!self->byte_swap) ? OMV_SPI_MAX_16BIT_XFER : OMV_SPI_MAX_8BIT_XFER;
-    uint8_t *addr = spi_state_write_addr;
-    size_t count = IM_MIN(spi_state_write_count, spi_state_write_limit);
+    size_t spi_write_limit = (!self->byte_swap) ? OMV_SPI_MAX_16BIT_XFER : OMV_SPI_MAX_8BIT_XFER;
+    uint8_t *addr = self->spi_write_addr;
+    size_t count = IM_MIN(self->spi_write_count, spi_write_limit);
 
-    spi_state_write_addr += (!self->byte_swap) ? (count * 2) : count;
-    spi_state_write_count -= count;
+    self->spi_write_addr += (!self->byte_swap) ? (count * 2) : count;
+    self->spi_write_count -= count;
 
     // When starting the interrupt chain the first transfer is not executed in interrupt context.
     // So, disable interrupts for the first transfer so that it completes first and unlocks the
