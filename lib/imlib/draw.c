@@ -800,6 +800,31 @@ void imlib_draw_row(int x_start, int x_end, int y_row, imlib_draw_row_data_t *da
 #define COLOR_GRAYSCALE_BINARY_MIN_LSL16    (COLOR_GRAYSCALE_BINARY_MIN << 16)
 #define COLOR_GRAYSCALE_BINARY_MAX_LSL16    (COLOR_GRAYSCALE_BINARY_MAX << 16)
 
+    // When the mask callback is used with partial alpha, pre-populate dst_row_override
+    // from the actual destination row so the blend reads real pixels as background.
+    // Not needed for alpha=255 (blend overwrites dst entirely) or BAYER/YUV (no blend).
+    if (data->dst_row_override && !data->black_background && data->alpha != 255) {
+        switch (data->dst_img->pixfmt) {
+            case PIXFORMAT_BINARY:
+                memcpy(data->dst_row_override,
+                       IMAGE_COMPUTE_BINARY_PIXEL_ROW_PTR(data->dst_img, y_row),
+                       image_line_size(data->dst_img));
+                break;
+            case PIXFORMAT_GRAYSCALE:
+                memcpy(data->dst_row_override,
+                       IMAGE_COMPUTE_GRAYSCALE_PIXEL_ROW_PTR(data->dst_img, y_row),
+                       image_line_size(data->dst_img));
+                break;
+            case PIXFORMAT_RGB565:
+                memcpy(data->dst_row_override,
+                       IMAGE_COMPUTE_RGB565_PIXEL_ROW_PTR(data->dst_img, y_row),
+                       image_line_size(data->dst_img));
+                break;
+            default:
+                break;
+        }
+    }
+
     switch (data->dst_img->pixfmt) {
         case PIXFORMAT_BINARY: {
             uint32_t *dst32 = data->dst_row_override ?
