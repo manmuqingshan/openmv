@@ -134,20 +134,18 @@ class NMS:
 
         x_scale = self.roi[2] / float(self.window_w)
         y_scale = self.roi[3] / float(self.window_h)
-        scale = min(x_scale, y_scale)
-        x_offset = ((self.roi[2] - (self.window_w * scale)) / 2) + self.roi[0]
-        y_offset = ((self.roi[3] - (self.window_h * scale)) / 2) + self.roi[1]
+        x_offset = ((self.roi[2] - (self.window_w * x_scale)) / 2) + self.roi[0]
+        y_offset = ((self.roi[3] - (self.window_h * y_scale)) / 2) + self.roi[1]
 
         for i in range(len(output_boxes)):
-            output_boxes[i][0] = int((output_boxes[i][0] * scale) + x_offset)
-            output_boxes[i][1] = int((output_boxes[i][1] * scale) + y_offset)
-            output_boxes[i][2] = int(output_boxes[i][2] * scale)
-            output_boxes[i][3] = int(output_boxes[i][3] * scale)
+            output_boxes[i][0] = int((output_boxes[i][0] * x_scale) + x_offset)
+            output_boxes[i][1] = int((output_boxes[i][1] * y_scale) + y_offset)
+            output_boxes[i][2] = int(output_boxes[i][2] * x_scale)
+            output_boxes[i][3] = int(output_boxes[i][3] * y_scale)
             keypoints = output_boxes[i][6]
             if keypoints is not None:
-                keypoints[:, :2] *= scale
-                keypoints[:, 0] += x_offset
-                keypoints[:, 1] += y_offset
+                keypoints[:, 0] = (keypoints[:, 0] * x_scale) + x_offset
+                keypoints[:, 1] = (keypoints[:, 1] * y_scale) + y_offset
 
         # Create a list per class with (rect, score) tuples.
 
