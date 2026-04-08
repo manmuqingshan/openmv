@@ -1637,7 +1637,8 @@ __weak int omv_csi_snapshot(omv_csi_t *csi, image_t *image, uint32_t flags) {
     // Note: We must check if the buffer has been used before releasing it,
     // as it might have been captured in non-blocking mode but not used yet.
     if (buffer && (buffer->flags & VB_FLAG_USED)) {
-        if (flags & OMV_CSI_FLAG_UPDATE_FB) {
+        framebuffer_t *stream_fb = framebuffer_get(FB_STREAM_ID);
+        if (omv_csi_match(csi, stream_fb->source)) {
             image_t tmp;
             framebuffer_to_image(csi->fb, &tmp);
             framebuffer_update_preview(&tmp);

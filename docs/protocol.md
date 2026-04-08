@@ -452,6 +452,7 @@ Each channel type supports specific IOCTL commands for configuration and control
 | 0x00 | STREAM_CTRL | 4 bytes | Enable/disable streaming (uint32_t enable) |
 | 0x01 | STREAM_RAW_CTRL | 4 bytes | Enable/disable raw streaming (uint32_t enable) |
 | 0x02 | STREAM_RAW_CFG | 8 bytes | Set raw stream resolution (uint32_t width, uint32_t height) |
+| 0x03 | STREAM_SOURCE | 4 bytes | Set stream source (uint32_t chip_id) |
 
 #### Profile Channel IOCTLs
 | Request | Name | Payload Size | Description |
@@ -615,4 +616,5 @@ The `SYS_INFO` command returns hardware and memory information in a 76-byte resp
 
 | Version | Date     | Status   | Type                    | Description                            |
 |---------|----------|----------|-------------------------|----------------------------------------|
-| 1.0.0   | 2025     | Current  | Specification           | OpenMV Protocol specification          |
+| 1.0.1   | 2026     | Current  | Specification           | Add STREAM_SOURCE ioctl                |
+| 1.0.0   | 2025     |          | Specification           | OpenMV Protocol specification          |

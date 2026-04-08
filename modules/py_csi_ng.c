@@ -191,11 +191,10 @@ static mp_obj_t py_csi_flush(mp_obj_t self_in) {
 static MP_DEFINE_CONST_FUN_OBJ_1(py_csi_flush_obj, py_csi_flush);
 
 static mp_obj_t py_csi_snapshot(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
-    enum { ARG_time, ARG_frames, ARG_update, ARG_blocking, ARG_image };
+    enum { ARG_time, ARG_frames, ARG_blocking, ARG_image };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_time, MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = -1} },
         { MP_QSTR_frames, MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = -1} },
-        { MP_QSTR_update, MP_ARG_BOOL | MP_ARG_KW_ONLY,  {.u_bool = true} },
         { MP_QSTR_blocking, MP_ARG_BOOL | MP_ARG_KW_ONLY,  {.u_bool = true} },
         { MP_QSTR_image, MP_ARG_OBJ | MP_ARG_KW_ONLY,  {.u_rom_obj = MP_ROM_NONE} },
     };
@@ -208,10 +207,6 @@ static mp_obj_t py_csi_snapshot(size_t n_args, const mp_obj_t *pos_args, mp_map_
     image_t image = {0};
     mp_int_t time = args[ARG_time].u_int;
     mp_int_t frames = args[ARG_frames].u_int;
-
-    if (args[ARG_update].u_bool) {
-        flags |= OMV_CSI_FLAG_UPDATE_FB;
-    }
 
     if (!args[ARG_blocking].u_bool) {
         flags |= OMV_CSI_FLAG_NON_BLOCK;
@@ -1351,11 +1346,12 @@ static mp_obj_t py_csi_read_reg(mp_obj_t self_in, mp_obj_t addr) {
 static MP_DEFINE_CONST_FUN_OBJ_2(py_csi_read_reg_obj, py_csi_read_reg);
 
 mp_obj_t py_csi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
-    enum { ARG_id, ARG_delays, ARG_fflush };
+    enum { ARG_id, ARG_delays, ARG_fflush, ARG_stream };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_cid, MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = -1 } },
         { MP_QSTR_delays, MP_ARG_BOOL | MP_ARG_KW_ONLY,  {.u_bool = true} },
         { MP_QSTR_fflush, MP_ARG_BOOL | MP_ARG_KW_ONLY,  {.u_bool = true} },
+        { MP_QSTR_stream, MP_ARG_OBJ | MP_ARG_KW_ONLY,  {.u_rom_obj = MP_ROM_NONE} },
     };
 
     // Parse args.
@@ -1378,6 +1374,16 @@ mp_obj_t py_csi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, 
     if (csi->fb == NULL) {
         csi->fb = (framebuffer_t *) m_malloc(sizeof(framebuffer_t));
         framebuffer_init(csi->fb, NULL, 0, true, true);
+    }
+
+    // Set the streaming source.
+    framebuffer_t *stream_fb = framebuffer_get(FB_STREAM_ID);
+    if (args[ARG_stream].u_obj == mp_const_none) {
+        if (!csi->auxiliary) {
+            stream_fb->source = csi->chip_id;
+        }
+    } else if (mp_obj_is_true(args[ARG_stream].u_obj)) {
+        stream_fb->source = csi->chip_id;
     }
 
     #if MICROPY_PY_IMU
