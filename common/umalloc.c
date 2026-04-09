@@ -93,6 +93,7 @@ void uma_pool_add(void *mem, size_t size, uint32_t flags) {
     p->flags = flags;
     p->size = usable;
     p->free = usable;
+    p->persist = 0;
     p->peak = 0;
 }
 
@@ -170,11 +171,11 @@ void *uma_malloc(size_t size, uint32_t flags) {
         uma_fail();
     }
 
+    pool->free -= tlsf_block_size(ptr);
     if (flags & UMA_PERSIST) {
         tlsf_block_set_persist(ptr);
+        pool->persist += tlsf_block_size(ptr);
     }
-
-    pool->free -= tlsf_block_size(ptr);
     if ((pool->size - pool->free) > pool->peak) {
         pool->peak = pool->size - pool->free;
     }
@@ -207,11 +208,11 @@ void *uma_malign(size_t size, size_t align, uint32_t flags) {
         uma_fail();
     }
 
+    pool->free -= tlsf_block_size(ptr);
     if (flags & UMA_PERSIST) {
         tlsf_block_set_persist(ptr);
+        pool->persist += tlsf_block_size(ptr);
     }
-
-    pool->free -= tlsf_block_size(ptr);
     if ((pool->size - pool->free) > pool->peak) {
         pool->peak = pool->size - pool->free;
     }
@@ -230,6 +231,11 @@ void *uma_calloc(size_t size, uint32_t flags) {
 void *uma_realloc(void *ptr, size_t size, uint32_t flags) {
     if (!ptr) {
         return uma_malloc(size, flags);
+    }
+
+    if ((flags & UMA_PERSIST) || tlsf_block_is_persist(ptr)) {
+        // Well, we can, but there's no use use and it's much simple this way.
+        mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("can't realloc a persistent block"));
     }
 
     if (size == 0) {
@@ -287,10 +293,6 @@ void *uma_realloc(void *ptr, size_t size, uint32_t flags) {
         old_size = 0;   // for accounting
     }
 
-    if (flags & UMA_PERSIST) {
-        tlsf_block_set_persist(p);
-    }
-
     size_t new_size = tlsf_block_size(p);
     pool->free += (int) old_size - (int) new_size;
     if ((pool->size - pool->free) > pool->peak) {
@@ -306,6 +308,9 @@ void uma_free(void *ptr) {
     }
 
     uma_pool_t *pool = uma_pool_find(ptr, 0, 0);
+    if (tlsf_block_is_persist(ptr)) {
+        pool->persist -= tlsf_block_size(ptr);
+    }
     pool->free += tlsf_block_size(ptr);
     tlsf_free(pool->tlsf, ptr);
 }
@@ -348,6 +353,7 @@ void uma_transient_release(void) {
             uma_fail();
         }
         p->free = p->size;
+        p->persist = 0;
         p->peak = 0;
     }
 }
@@ -371,20 +377,16 @@ size_t uma_avail(uint32_t flags) {
 
 static void uma_block_walker(void *ptr, void *user) {
     uma_stats_t *s = (uma_stats_t *) user;
-    size_t size = tlsf_block_size(ptr);
     if (tlsf_block_is_free(ptr)) {
         s->free_count++;
-        s->free_bytes += size;
     } else if (tlsf_block_is_persist(ptr)) {
         s->persist_count++;
-        s->persist_bytes += size;
     } else {
         s->used_count++;
-        s->used_bytes += size;
     }
 }
 
-void uma_get_stats(int index, uma_stats_t *stats) {
+void uma_get_stats(int index, bool full, uma_stats_t *stats) {
     int start = 0, end = uma_num_pools;
 
     if (index >= 0 && index < uma_num_pools) {
@@ -395,7 +397,20 @@ void uma_get_stats(int index, uma_stats_t *stats) {
     memset(stats, 0, sizeof(*stats));
 
     for (int i = start; i < end; i++) {
-        tlsf_walk(uma_pools[i].tlsf, uma_block_walker, stats);
+        uma_pool_t *p = &uma_pools[i];
+        stats->free_bytes += p->free;
+        stats->used_bytes += p->size - p->free;
+        stats->persist_bytes += p->persist;
+    }
+
+    if (full) {
+        for (int i = start; i < end; i++) {
+            uma_pool_t *p = &uma_pools[i];
+            // It's not safe to walk transient pools
+            if (!(p->flags & UMA_TRANSIENT)) {
+                tlsf_walk(p->tlsf, uma_block_walker, stats);
+            }
+        }
     }
 
     if (end - start == 1) {
@@ -414,7 +429,7 @@ void uma_print_stats(int index) {
     for (int i = start; i < end; i++) {
         uma_pool_t *p = &uma_pools[i];
         uma_stats_t stats;
-        uma_get_stats(i, &stats);
+        uma_get_stats(i, true, &stats);
 
         printf("pool %d: base=0x%08lx size=%lu "
                "used=%lu(%lu) free=%lu(%lu) persist=%lu(%lu) "

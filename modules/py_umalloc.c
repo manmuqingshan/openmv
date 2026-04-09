@@ -44,7 +44,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(py_umalloc_collect_obj, py_umalloc_collect);
 static mp_obj_t py_umalloc_stats(size_t n_args, const mp_obj_t *args) {
     int index = (n_args > 0) ? mp_obj_get_int(args[0]) : -1;
     uma_stats_t s;
-    uma_get_stats(index, &s);
+    uma_get_stats(index, true, &s);
     mp_obj_t tuple[7] = {
         mp_obj_new_int(s.used_count),
         mp_obj_new_int(s.free_count),

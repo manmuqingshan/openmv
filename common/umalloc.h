@@ -29,6 +29,7 @@
 #if !defined(LINKER_SCRIPT)
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #endif
 
 // Memory attributes (bits 0-7)
@@ -56,6 +57,7 @@ typedef struct {
     void *tlsf;
     size_t size;
     size_t free;
+    size_t persist;
     size_t peak;
     uintptr_t base;
     uintptr_t end;
@@ -88,7 +90,7 @@ void  uma_collect(void);
 size_t uma_avail(uint32_t flags);
 void uma_transient_acquire(void);
 void uma_transient_release(void);
-void uma_get_stats(int index, uma_stats_t *stats);
+void uma_get_stats(int index, bool full, uma_stats_t *stats);
 void uma_print_stats(int index);
 
 #endif // !LINKER_SCRIPT
