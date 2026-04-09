@@ -77,13 +77,13 @@ def map_g_to_temp(g):
 
 
 # Kickstart thermal camera capture.
-csi1.snapshot(update=False, blocking=True, image=fir_img)
+csi1.snapshot(blocking=True, image=fir_img)
 
 while True:
     img = csi0.snapshot()
 
     # Capture the thermal image without blocking.
-    csi1.snapshot(update=False, blocking=False, image=fir_img)
+    csi1.snapshot(blocking=False, image=fir_img)
 
     fir_img_size = fir_img.width() * fir_img.height()
 
