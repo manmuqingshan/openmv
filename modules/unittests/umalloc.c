@@ -295,7 +295,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(test_uma_collect_mixed_obj, test_uma_collect_mi
 // Test that stats reflect allocations.
 static mp_obj_t test_uma_stats(void) {
     uma_stats_t s;
-    uma_get_stats(-1, &s);
+    uma_get_stats(-1, true, &s);
     if (s.used_count != 0) {
         return mp_const_false;
     }
@@ -304,7 +304,7 @@ static mp_obj_t test_uma_stats(void) {
     void *b = uma_malloc(200, 0);
     void *c = uma_malloc(300, 0);
 
-    uma_get_stats(-1, &s);
+    uma_get_stats(-1, true, &s);
     if (s.used_count != 3) {
         uma_free(a);
         uma_free(b);
@@ -316,7 +316,7 @@ static mp_obj_t test_uma_stats(void) {
     uma_free(b);
     uma_free(c);
 
-    uma_get_stats(-1, &s);
+    uma_get_stats(-1, true, &s);
     if (s.used_count != 0) {
         return mp_const_false;
     }
@@ -331,14 +331,14 @@ static mp_obj_t test_uma_collect_stats(void) {
     uma_malloc(200, 0);
 
     uma_stats_t s;
-    uma_get_stats(-1, &s);
+    uma_get_stats(-1, true, &s);
     if (s.used_count != 2) {
         return mp_const_false;
     }
 
     uma_collect();
 
-    uma_get_stats(-1, &s);
+    uma_get_stats(-1, true, &s);
     if (s.used_count != 0) {
         return mp_const_false;
     }
@@ -655,7 +655,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(test_uma_pool_dtcm_strict_fail_obj, test_uma_po
 // Test that realloc with UMA_CACHE preserves alignment when the block relocates.
 static mp_obj_t test_uma_realloc_aligned(void) {
     // Allocate a cache-aligned block.
-    void *aligned = uma_malloc(128, UMA_CACHE | UMA_PERSIST);
+    void *aligned = uma_malloc(128, UMA_CACHE);
     if (!aligned || (uintptr_t) aligned % OMV_CACHE_LINE_SIZE != 0) {
         uma_free(aligned);
         return mp_const_false;
@@ -668,17 +668,16 @@ static mp_obj_t test_uma_realloc_aligned(void) {
         return mp_const_false;
     }
 
-    // Realloc to a larger size WITH UMA_CACHE. The blocker prevents
-    // in-place resize, forcing relocation — alignment must be preserved.
-    void *moved = uma_realloc(aligned, 256, UMA_CACHE | UMA_PERSIST);
+    // Realloc to a larger size. The blocker prevents in-place resize,
+    // forcing relocation - alignment must be preserved.
+    void *moved = uma_realloc(aligned, 256, UMA_CACHE);
     if (!moved) {
         uma_free(blocker);
         return mp_const_false;
     }
 
     bool pass = (moved != aligned
-                 && (uintptr_t) moved % OMV_CACHE_LINE_SIZE == 0
-                 && tlsf_block_is_persist(moved));
+                 && (uintptr_t) moved % OMV_CACHE_LINE_SIZE == 0);
 
     uma_free(moved);
     uma_free(blocker);
