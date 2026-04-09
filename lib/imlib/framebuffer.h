@@ -90,6 +90,8 @@ typedef struct framebuffer {
     queue_t *used_queue;    // Vbuffer used/read queue.
     queue_t *free_queue;    // Vbuffer free/write queue.
     char raw_static[queue_calc_size(3) * 2]; // Static memory for small queues.
+    uint32_t fps_last_ms;   // Timestamp of last preview update.
+    float fps_frame_time;   // Exponential moving average frame time in ms.
 } framebuffer_t;
 
 // Drivers can add more flags:
@@ -114,6 +116,7 @@ typedef struct __attribute__((packed)) framebuffer_header {
     uint32_t height;    // Frame height
     PIXFORMAT_STRUCT;   // Pixel format
     uint32_t offset;    // Data offset
+    float fps;          // Frames per second
     OMV_ATTR_ALIGNED(uint8_t data[], FRAMEBUFFER_ALIGNMENT);
 } framebuffer_header_t;
 

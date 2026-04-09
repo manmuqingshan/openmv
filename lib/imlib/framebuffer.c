@@ -263,6 +263,20 @@ void framebuffer_update_preview(image_t *src) {
     static int overflow_count = 0;
     framebuffer_t *fb = framebuffer_get(FB_STREAM_ID);
 
+    // Update FPS tracking (EMA of frame time in ms).
+    uint32_t now = mp_hal_ticks_ms();
+    if (fb->fps_last_ms) {
+        uint32_t delta = now - fb->fps_last_ms;
+        if (delta > 0) {
+            if (fb->fps_frame_time > 0.0f) {
+                fb->fps_frame_time = fb->fps_frame_time * 0.9f + delta * 0.1f;
+            } else {
+                fb->fps_frame_time = delta;
+            }
+        }
+    }
+    fb->fps_last_ms = now;
+
     // Check if the streaming buffer is disabled, image is NULL or format is not set.
     if (!fb->enabled || !src->data || src->pixfmt == PIXFORMAT_INVALID) {
         return;
@@ -365,6 +379,7 @@ exit_cleanup:
     header->pixfmt = fb->pixfmt;
     header->size = fb->is_compressed ? fb->size : fb->bpp;
     header->offset = sizeof(framebuffer_header_t);
+    header->fps = (fb->fps_frame_time > 0.0f) ? 1000.0f / fb->fps_frame_time : 0.0f;
 
     // Unlock the streaming buffer.
     if (overflow) {
