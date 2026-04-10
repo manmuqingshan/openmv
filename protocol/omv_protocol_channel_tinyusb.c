@@ -123,7 +123,9 @@ void tud_cdc_line_state_cb(uint8_t instance, bool dtr, bool rts) {
         usb_channel_active = (coding.bit_rate == OMV_PROTOCOL_MAGIC_BAUDRATE);
     }
 
-    __mp_tud_cdc_line_state_cb(instance, dtr, rts);
+    if (!usb_channel_active) {
+        __mp_tud_cdc_line_state_cb(instance, dtr, rts);
+    }
 }
 
 void tud_event_hook_cb(uint8_t rhport, uint32_t eventid, bool in_isr) {
