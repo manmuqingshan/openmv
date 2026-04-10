@@ -28,7 +28,7 @@ ifeq ($(TARGET),)
 endif
 
 # OpenMV SDK configuration
-SDK_VERSION = 1.2.0
+SDK_VERSION := $(shell cat $(CURDIR)/SDK_VERSION)
 SDK_DIR ?= $(HOME)/openmv-sdk-$(SDK_VERSION)
 SDK_STAMP = $(SDK_DIR)/sdk.version
 

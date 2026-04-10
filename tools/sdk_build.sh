@@ -7,10 +7,10 @@
 #
 # Assembles a platform-specific OpenMV SDK.
 #
-# Versioning: bump SDK_VERSION when the SDK contents change.
-#   MAJOR — layout or ABI breaking changes
-#   MINOR — new tools or component upgrades
-#   PATCH — checksum or repackaging fixes
+# Versioning: bump the version in SDK_VERSION at the repo root.
+#   MAJOR - layout or ABI breaking changes
+#   MINOR - new tools or component upgrades
+#   PATCH - checksum or repackaging fixes
 
 set -euo pipefail
 
@@ -18,7 +18,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ########################################################################################
 # Configuration
-SDK_VERSION="1.2.0"
+SDK_VERSION="$(cat "${SCRIPT_DIR}/../SDK_VERSION")"
 SDK_PLATFORM="$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)"
 SDK_NAME="openmv-sdk-${SDK_VERSION}-${SDK_PLATFORM}"
 BUILD_DIR="sdk"
