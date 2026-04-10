@@ -11,6 +11,9 @@ def unittest(data_path, temp_path):
     from ml.postprocessing.mediapipe import HandLandmarks
 
     img = image.Image(data_path + "/hand.bmp", copy_to_fb=True)
+    # BlazePalm requires square input, so crop the center of the image.
+    s = min(img.width(), img.height())
+    img = img.crop(roi=((img.width() - s) // 2, (img.height() - s) // 2, s, s))
 
     # First detect a palm.
     palm_detection = ml.Model(data_path + "/palm_detection_full_192.tflite", postprocess=BlazePalm(threshold=0.4))
@@ -34,7 +37,7 @@ def unittest(data_path, temp_path):
 
     # Should have at least one hand with 21 keypoints.
     r, score, keypoints = hands[0][0]
-    if r != [-6, 50, 319, 362]:
+    if r != [14, 48, 285, 364]:
         return False
     if keypoints.shape != (21, 3):
         return False

@@ -11,16 +11,19 @@ def unittest(data_path, temp_path):
     from ml.postprocessing.mediapipe import FaceLandmarks
 
     img = image.Image(data_path + "/faces.bmp", copy_to_fb=True)
+    # BlazeFace requires square input, so crop the center of the image.
+    s = min(img.width(), img.height())
+    img = img.crop(roi=((img.width() - s) // 2, (img.height() - s) // 2, s, s))
 
     # First detect a face.
     face_detection = ml.Model(data_path + "/blazeface_front_128.tflite", postprocess=BlazeFace(threshold=0.4))
     faces = face_detection.predict([img])
 
     expected_rects = [
-        ([140, 14, 46, 46], 0.7783118),
-        ([234, 157, 34, 34], 0.6603524),
-        ([66, 97, 38, 38], 0.6350756),
-        ([234, 2, 40, 40], 0.5184602),
+        ([76, 14, 48, 48], 0.796841),
+        ([163, 155, 36, 36], 0.7004726),
+        ([170, 2, 40, 40], 0.5),
+        ([4, 97, 36, 36], 0.5),
     ]
 
     if len(faces) != len(expected_rects):
@@ -41,7 +44,7 @@ def unittest(data_path, temp_path):
         return False
 
     r, score, keypoints = marks[0]
-    if r != [141, 3, 46, 57]:
+    if r != [74, 0, 50, 61]:
         return False
     if keypoints.shape != (468, 3):
         return False
