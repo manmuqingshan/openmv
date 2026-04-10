@@ -2,7 +2,7 @@
 
 ########################################################################################
 # Install OpenMV SDK.
-SDK_VERSION="1.2.0"
+SDK_VERSION="$(cat "$(dirname "${BASH_SOURCE[0]}")/../SDK_VERSION")"
 SDK_DIR="${HOME}/openmv-sdk-${SDK_VERSION}"
 SDK_BASE_URL="https://download.openmv.io/sdk"
 SDK_OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
