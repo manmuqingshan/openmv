@@ -81,6 +81,7 @@
 #include "omv_protocol.h"
 
 NORETURN void __fatal_error(const char *msg);
+extern void machine_pwm_deinit_all(void);
 extern void machine_pin_irq_deinit(void);
 
 int main(void) {
@@ -227,6 +228,7 @@ soft_reset_exit:
     #if MICROPY_PY_MACHINE_I2C_TARGET
     mp_machine_i2c_target_deinit_all();
     #endif
+    machine_pwm_deinit_all();
     machine_pin_irq_deinit();
     imlib_deinit();
     soft_timer_deinit();
