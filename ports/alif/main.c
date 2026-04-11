@@ -39,6 +39,7 @@
 #include "shared/runtime/pyexec.h"
 #include "shared/runtime/softtimer.h"
 #include "tusb.h"
+#include "modmachine.h"
 #include "mpuart.h"
 #include "ospi_flash.h"
 #include "pendsv.h"
@@ -91,6 +92,7 @@ int main(void) {
     alif_hal_init();
 
     pendsv_init();
+    machine_rtc_init();
 
     #if MICROPY_HW_ENABLE_UART_REPL
     mp_uart_init_repl();
