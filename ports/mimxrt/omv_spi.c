@@ -110,7 +110,7 @@ static void spi_master_callback(LPSPI_Type *base, void *handle, status_t status,
     void *buf = spi->xfer_descr.rxData;
 
     if (buf == NULL) {
-        buf = spi->xfer_descr.txData;
+        buf = (void *) spi->xfer_descr.txData;
     }
 
     // The IMXRT doesn't support half complete transfer interrupts (in the lpspi driver) like the STM32
