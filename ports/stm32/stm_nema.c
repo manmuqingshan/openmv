@@ -30,6 +30,7 @@
 
 #if (OMV_GPU_NEMA == 1)
 #include "py/mphal.h"
+#include "py/runtime.h"
 #include "irq.h"
 
 #include "omv_common.h"
@@ -38,6 +39,10 @@
 
 #ifndef OMV_GPU_NEMA_RING_SIZE
 #define OMV_GPU_NEMA_RING_SIZE 1024
+#endif
+
+#ifndef OMV_GPU_NEMA_TIMEOUT_MS
+#define OMV_GPU_NEMA_TIMEOUT_MS 500
 #endif
 
 volatile static int last_cl_id = -1;
@@ -85,8 +90,13 @@ int32_t nema_sys_init(void) {
 }
 
 int nema_wait_irq_cl(int cl_id) {
+    mp_uint_t tick_start = mp_hal_ticks_ms();
     while (last_cl_id < cl_id) {
-        __WFI();
+        mp_uint_t elapsed = mp_hal_ticks_ms() - tick_start;
+        if (elapsed >= OMV_GPU_NEMA_TIMEOUT_MS) {
+            return -1;
+        }
+        mp_event_wait_ms(OMV_GPU_NEMA_TIMEOUT_MS - elapsed);
     }
     return 0;
 }
