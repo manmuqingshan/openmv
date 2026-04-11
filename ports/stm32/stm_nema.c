@@ -107,11 +107,10 @@ void nema_reg_write(uint32_t reg, uint32_t value) {
 }
 
 nema_buffer_t nema_buffer_create(int size) {
-    nema_buffer_t bo = {
-        .base_virt = nema_host_malloc(size),
-        .base_phys = (uint32_t) bo.base_virt,
-        .size = size,
-    };
+    nema_buffer_t bo;
+    bo.base_virt = nema_host_malloc(size);
+    bo.base_phys = (uint32_t) bo.base_virt;
+    bo.size = size;
     return bo;
 }
 
