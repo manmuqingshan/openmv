@@ -85,9 +85,9 @@
 #define OMV_STACK_SIZE                        (16K)
 #define OMV_DMA_MEMORY                        DTCM // Misc DMA buffers
 #define OMV_GC_BLOCK0_MEMORY                  DTCM // Main GC block
-#define OMV_GC_BLOCK0_SIZE                    (52K)
+#define OMV_GC_BLOCK0_SIZE                    (50K)
 #define OMV_UMA_BLOCK0_MEMORY                 SRAM1 // Default UMA pool.
-#define OMV_UMA_BLOCK0_SIZE                   (384K)
+#define OMV_UMA_BLOCK0_SIZE                   (383K)
 #define OMV_UMA_BLOCK0_FLAGS                  (0)
 #define OMV_SB_SIZE                           (22K) // IDE JPEG buffer (header + data).
 #define OMV_MSC_BUF_SIZE                      (2K) // USB MSC bot data

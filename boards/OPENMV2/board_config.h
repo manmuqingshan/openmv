@@ -84,7 +84,7 @@
 #define OMV_STACK_SIZE                        (8K)
 #define OMV_DMA_MEMORY                        SRAM2 // Misc DMA buffers
 #define OMV_GC_BLOCK0_MEMORY                  DTCM  // Main GC block
-#define OMV_GC_BLOCK0_SIZE                    (45K)
+#define OMV_GC_BLOCK0_SIZE                    (44K)
 #define OMV_UMA_BLOCK0_MEMORY                 SRAM1 // Default UMA pool.
 #define OMV_UMA_BLOCK0_SIZE                   (160K)
 #define OMV_UMA_BLOCK0_FLAGS                  (0)
