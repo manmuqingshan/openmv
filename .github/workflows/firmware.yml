@@ -14,10 +14,12 @@ on:
       - '!**.rst'
       - '!**.md'
       - '!cubeai**'
-      - '!scripts**'
+      - '!scripts/examples**'
+      - 'scripts/libraries/**'
+      - 'scripts/unittest/**'
 
   pull_request:
-    branches:    
+    branches:
       - 'master'
     paths:
       - '**'
@@ -27,7 +29,9 @@ on:
       - '!**.rst'
       - '!**.md'
       - '!cubeai**'
-      - '!scripts**'
+      - '!scripts/examples**'
+      - 'scripts/libraries/**'
+      - 'scripts/unittest/**'
 
 jobs:
   build-firmware:
