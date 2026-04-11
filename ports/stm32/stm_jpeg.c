@@ -332,12 +332,13 @@ bool jpeg_compress(image_t *src, image_t *dst, int quality, bool realloc, jpeg_s
 
             // Wait for the last row MCUs to be processed before starting the next row.
             for (mp_uint_t tickstart = mp_hal_ticks_ms(); !JPEG_state.input_paused; ) {
-                if (JPEG_state.output_paused || ((mp_hal_ticks_ms() - tickstart) > JPEG_CODEC_TIMEOUT)) {
+                mp_uint_t elapsed = mp_hal_ticks_ms() - tickstart;
+                if (JPEG_state.output_paused || (elapsed > JPEG_CODEC_TIMEOUT)) {
                     memset(&JPEG_state.jpeg_descr.Conf, 0, sizeof(JPEG_ConfTypeDef));
                     jpeg_overflow = true;
                     goto exit_cleanup;
                 }
-                MICROPY_EVENT_POLL_HOOK
+                mp_event_wait_ms(JPEG_CODEC_TIMEOUT - elapsed);
             }
 
             // Reset the lock.
@@ -353,12 +354,13 @@ bool jpeg_compress(image_t *src, image_t *dst, int quality, bool realloc, jpeg_s
 
     for (mp_uint_t tickstart = mp_hal_ticks_ms();
          HAL_JPEG_GetState(&JPEG_state.jpeg_descr) == HAL_JPEG_STATE_BUSY_ENCODING; ) {
-        if (JPEG_state.output_paused || ((mp_hal_ticks_ms() - tickstart) > JPEG_CODEC_TIMEOUT)) {
+        mp_uint_t elapsed = mp_hal_ticks_ms() - tickstart;
+        if (JPEG_state.output_paused || (elapsed > JPEG_CODEC_TIMEOUT)) {
             memset(&JPEG_state.jpeg_descr.Conf, 0, sizeof(JPEG_ConfTypeDef));
             jpeg_overflow = true;
             goto exit_cleanup;
         }
-        MICROPY_EVENT_POLL_HOOK
+        mp_event_wait_ms(JPEG_CODEC_TIMEOUT - elapsed);
     }
 
     // Set output size.
@@ -573,10 +575,11 @@ void jpeg_decompress(image_t *dst, image_t *src) {
 
         // Wait for the MCUs to be processed.
         for (mp_uint_t tick_start = mp_hal_ticks_ms(); !JPEG_state.output_paused; ) {
-            if ((mp_hal_ticks_ms() - tick_start) > JPEG_CODEC_TIMEOUT) {
+            mp_uint_t elapsed = mp_hal_ticks_ms() - tick_start;
+            if (elapsed > JPEG_CODEC_TIMEOUT) {
                 goto exit_cleanup;
             }
-            MICROPY_EVENT_POLL_HOOK
+            mp_event_wait_ms(JPEG_CODEC_TIMEOUT - elapsed);
         }
 
         if ((y_offset + mcu_h) < src->h) {
@@ -766,10 +769,11 @@ void jpeg_decompress(image_t *dst, image_t *src) {
             // last row
             for (mp_uint_t tick_start = mp_hal_ticks_ms();
                  HAL_JPEG_GetState(&JPEG_state.jpeg_descr) == HAL_JPEG_STATE_BUSY_DECODING; ) {
-                if ((mp_hal_ticks_ms() - tick_start) > JPEG_CODEC_TIMEOUT) {
+                mp_uint_t elapsed = mp_hal_ticks_ms() - tick_start;
+                if (elapsed > JPEG_CODEC_TIMEOUT) {
                     goto exit_cleanup;
                 }
-                MICROPY_EVENT_POLL_HOOK
+                mp_event_wait_ms(JPEG_CODEC_TIMEOUT - elapsed);
             }
         }
     }
