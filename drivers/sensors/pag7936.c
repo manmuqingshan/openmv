@@ -324,6 +324,7 @@ static const uint16_t default_regs[][2] = {
     { 0x0A35,   0x0D },
     { 0x000B,   0x02 },
     #endif
+    { 0x0801,   0x00 }, // Disable ramp test pattern
     { 0x0810,   0x01 },
     { 0x0814,   0xB3 }, //R_center_rx[10:0]=691
     { 0x0815,   0x02 }, //R_center_rx[10:0]=691
@@ -590,10 +591,7 @@ static int set_gainceiling(omv_csi_t *csi, omv_csi_gainceiling_t gainceiling) {
 
 static int set_colorbar(omv_csi_t *csi, int enable) {
     uint8_t reg;
-    int ret = omv_i2c_read_reg(csi->i2c, csi->slv_addr, ISP_EN_H, 2, &reg, 1);
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, ISP_EN_H, 2,
-                             (reg & ~ISP_EN_H_EN) | (enable ? ISP_EN_H_EN : 0), 1);
-    ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, ISP_TEST_MODE, 2, &reg, 1);
+    int ret = omv_i2c_read_reg(csi->i2c, csi->slv_addr, ISP_TEST_MODE, 2, &reg, 1);
     ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, ISP_TEST_MODE, 2,
                              (reg & ~ISP_TEST_MODE_RAMP) | (enable ? ISP_TEST_MODE_RAMP : 0), 1);
     ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, SENSOR_UPDATE, 2, SENSOR_UPDATE_FLAG, 1);
