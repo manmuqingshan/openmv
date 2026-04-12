@@ -22,6 +22,7 @@ freeze ("$(OMV_LIB_DIR)/", "requests.py")
 
 # Utils
 require("time")
+require("senml")
 require("logging")
 require("collections-defaultdict")
 require("types")

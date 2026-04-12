@@ -28,6 +28,7 @@ require("time")
 require("logging")
 require("collections-defaultdict")
 require("types")
+require("senml")
 
 # Libraries
 require("ml", library="openmv-lib")
