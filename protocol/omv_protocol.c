@@ -30,6 +30,8 @@
 #include <stddef.h>
 
 #include "py/mphal.h"
+#include "py/gc.h"
+#include "umalloc.h"
 #include "omv_csi.h"
 #include "omv_crc.h"
 #include "omv_protocol.h"
@@ -736,6 +738,42 @@ void omv_protocol_process(const omv_protocol_packet_t *packet) {
             sysinfo.stream_buffer_size_kb = framebuffer_get(FB_STREAM_ID)->raw_size / 1024;
 
             omv_protocol_send_packet(OMV_PROTOCOL_OPCODE_SYS_INFO, packet->channel, sizeof(sysinfo), &sysinfo, 0);
+            break;
+        }
+
+        case OMV_PROTOCOL_OPCODE_SYS_MEMORY: {
+            gc_info_t gc;
+            int count = uma_pool_count() + 1;
+            uint8_t resp_buf[sizeof(omv_protocol_mem_stats_t)
+                             + (UMA_MAX_POOLS + 1) * sizeof(omv_protocol_mem_entry_t)];
+
+            memset(resp_buf, 0, sizeof(resp_buf));
+            omv_protocol_mem_stats_t *resp = (omv_protocol_mem_stats_t *) resp_buf;
+
+            // GC stats
+            gc_info(&gc);
+
+            resp->count = count;
+            resp->entries[0].type = OMV_PROTOCOL_MEM_TYPE_GC;
+            resp->entries[0].total = (uint32_t) gc.total;
+            resp->entries[0].used = (uint32_t) gc.used;
+            resp->entries[0].free = (uint32_t) gc.free;
+
+            // UMA per-pool stats
+            for (int i = 0; i < count - 1; i++) {
+                uma_stats_t uma;
+                uma_get_stats(i, false, &uma);
+                resp->entries[i + 1].type = OMV_PROTOCOL_MEM_TYPE_UMA;
+                resp->entries[i + 1].flags = (uint16_t) uma_pool_get(i)->flags;
+                resp->entries[i + 1].total = (uint32_t) uma_pool_get(i)->size;
+                resp->entries[i + 1].used = (uint32_t) uma.used_bytes;
+                resp->entries[i + 1].free = (uint32_t) uma.free_bytes;
+                resp->entries[i + 1].persist = (uint32_t) uma.persist_bytes;
+                resp->entries[i + 1].peak = (uint32_t) uma.peak_bytes;
+            }
+
+            size_t resp_size = sizeof(omv_protocol_mem_stats_t) + count * sizeof(omv_protocol_mem_entry_t);
+            omv_protocol_send_packet(OMV_PROTOCOL_OPCODE_SYS_MEMORY, packet->channel, resp_size, resp_buf, 0);
             break;
         }
 
