@@ -32,6 +32,6 @@ while True:
         )
         img.flush()
     except RuntimeError as e:
-        tof.reset()
+        continue
 
     print(clock.fps())
