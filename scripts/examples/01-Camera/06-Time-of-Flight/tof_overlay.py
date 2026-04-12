@@ -30,7 +30,6 @@ while True:
     try:
         depth, dmin, dmax = tof.read_depth(vflip=True, hmirror=True)
     except RuntimeError:
-        tof.reset()
         continue
 
     # Scale the image and belnd it with the framebuffer
