@@ -152,7 +152,7 @@ MPY_FIRM_OBJ += $(addprefix $(BUILD)/$(MICROPY_DIR)/,\
 	flash.o                             \
 	led.o                               \
 	machine_bitstream.o                 \
-	machine_can.o                       \
+	machine_encoder.o                   \
 	machine_i2c.o                       \
 	machine_led.o                       \
 	machine_pin.o                       \
@@ -184,6 +184,7 @@ MPY_FIRM_OBJ += $(addprefix $(BUILD)/$(MICROPY_DIR)/hal/,\
 	phy/device/phydp83825/fsl_phydp83825.o  \
 	phy/device/phydp83848/fsl_phydp83848.o  \
 	phy/device/phyksz8081/fsl_phyksz8081.o  \
+	phy/device/phydp83867/fsl_phydp83867.o  \
 	phy/device/phylan8720/fsl_phylan8720.o  \
 	phy/device/phyrtl8211f/fsl_phyrtl8211f.o\
 )

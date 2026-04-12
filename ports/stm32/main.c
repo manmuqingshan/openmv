@@ -59,6 +59,9 @@
 #if MICROPY_PY_NETWORK
 #include "extmod/modnetwork.h"
 #endif
+#if MICROPY_PY_MACHINE_CAN
+#include "extmod/machine_can.h"
+#endif
 #if MICROPY_PY_BLUETOOTH
 #include "mpbthciport.h"
 #include "extmod/modbluetooth.h"
@@ -384,6 +387,18 @@ soft_reset:
     uart_deinit_all();
     #if MICROPY_HW_ENABLE_CAN
     pyb_can_deinit_all();
+    #if MICROPY_PY_MACHINE_CAN
+    machine_can_deinit_all();
+    #endif
+    #endif // MICROPY_HW_ENABLE_CAN
+    #if MICROPY_HW_ENABLE_DAC
+    dac_deinit_all();
+    #endif
+    #if MICROPY_PY_MACHINE_PWM
+    machine_pwm_deinit_all();
+    #endif
+    #if MICROPY_PY_MACHINE
+    machine_deinit();
     #endif
     #if MICROPY_PY_THREAD
     pyb_thread_deinit();

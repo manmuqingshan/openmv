@@ -271,7 +271,7 @@ int ml_backend_run_inference(py_ml_model_obj_t *model) {
             // Epoch block finished and NPU is idle - handle pending events.
             // Note MSC callbacks may erase/write the SPI flash, which exits
             // (XIP) mode. It's only safe to handle events when the NPU is idle.
-            mp_handle_pending_internal(MP_HANDLE_PENDING_CALLBACKS_ONLY);
+            mp_handle_pending(MP_HANDLE_PENDING_CALLBACKS_ONLY);
         }
     } while (ll_aton_rt_ret != LL_ATON_RT_DONE);
 

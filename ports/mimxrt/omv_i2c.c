@@ -107,7 +107,7 @@ int omv_i2c_init(omv_i2c_t *i2c, uint32_t bus_id, uint32_t speed) {
     lpi2c_master_config_t lpi2c_config = {0};
     LPI2C_MasterGetDefaultConfig(&lpi2c_config);
 
-    lpi2c_config.ignoreAck = true;
+    lpi2c_config.ignoreAck = false;
     lpi2c_config.baudRate_Hz = i2c->speed;
 
     mimxrt_hal_i2c_init(bus_id);
@@ -181,11 +181,12 @@ static int omv_i2c_transfer_timeout(omv_i2c_t *i2c, lpi2c_master_transfer_t *tra
     // Wait for the transfer to finish.
     mp_uint_t tick_start = mp_hal_ticks_ms();
     while (!(xfer_status.flags & LPI2C_TRANSFER_COMPLETE)) {
-        if ((mp_hal_ticks_ms() - tick_start) >= I2C_TIMEOUT) {
+        mp_uint_t elapsed = mp_hal_ticks_ms() - tick_start;
+        if (elapsed >= I2C_TIMEOUT) {
             xfer_status.flags |= LPI2C_TRANSFER_ERROR;
             break;
         }
-        MICROPY_EVENT_POLL_HOOK
+        mp_event_wait_ms(I2C_TIMEOUT - elapsed);
     }
 
     // Terminate non-blocking transfer.

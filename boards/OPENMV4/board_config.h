@@ -135,7 +135,7 @@
 #define OMV_GC_BLOCK0_MEMORY                  SRAM4 // Main GC block.
 #define OMV_GC_BLOCK0_SIZE                    (64K)
 #define OMV_GC_BLOCK1_MEMORY                  SRAM1 // Extra GC block 0.
-#define OMV_GC_BLOCK1_SIZE                    (267K)
+#define OMV_GC_BLOCK1_SIZE                    (264K)
 #define OMV_UMA_BLOCK0_MEMORY                 SRAM0 // Default UMA pool.
 #define OMV_UMA_BLOCK0_SIZE                   (480K)
 #define OMV_UMA_BLOCK0_FLAGS                  (0)

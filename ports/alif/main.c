@@ -39,6 +39,7 @@
 #include "shared/runtime/pyexec.h"
 #include "shared/runtime/softtimer.h"
 #include "tusb.h"
+#include "modmachine.h"
 #include "mpuart.h"
 #include "ospi_flash.h"
 #include "pendsv.h"
@@ -81,6 +82,7 @@
 #include "omv_protocol.h"
 
 NORETURN void __fatal_error(const char *msg);
+extern void machine_pwm_deinit_all(void);
 extern void machine_pin_irq_deinit(void);
 
 int main(void) {
@@ -90,6 +92,7 @@ int main(void) {
     alif_hal_init();
 
     pendsv_init();
+    machine_rtc_init();
 
     #if MICROPY_HW_ENABLE_UART_REPL
     mp_uart_init_repl();
@@ -227,6 +230,7 @@ soft_reset_exit:
     #if MICROPY_PY_MACHINE_I2C_TARGET
     mp_machine_i2c_target_deinit_all();
     #endif
+    machine_pwm_deinit_all();
     machine_pin_irq_deinit();
     imlib_deinit();
     soft_timer_deinit();

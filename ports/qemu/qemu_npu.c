@@ -89,11 +89,11 @@ uint64_t ethosu_address_remap(uint64_t address, int index) {
 }
 
 void ethosu_inference_begin(struct ethosu_driver *drv, void *user_arg) {
-    mp_handle_pending_internal(MP_HANDLE_PENDING_CALLBACKS_ONLY);
+    mp_handle_pending(MP_HANDLE_PENDING_CALLBACKS_ONLY);
 }
 
 void ethosu_inference_end(struct ethosu_driver *drv, void *user_arg) {
-    mp_handle_pending_internal(MP_HANDLE_PENDING_CALLBACKS_ONLY);
+    mp_handle_pending(MP_HANDLE_PENDING_CALLBACKS_ONLY);
 }
 
 static void ETHOSU_IRQ_Handler(void) {

@@ -57,6 +57,7 @@ MPY_FIRM_OBJ += $(addprefix $(BUILD)/$(MICROPY_DIR)/,\
     mbedtls/*.o \
     lib/mbedtls/library/*.o \
     lib/mbedtls_errors/*.o \
+    extmod/mbedtls/*.o \
 )
 endif
 
