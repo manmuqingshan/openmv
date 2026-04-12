@@ -107,7 +107,7 @@ int omv_i2c_init(omv_i2c_t *i2c, uint32_t bus_id, uint32_t speed) {
     lpi2c_master_config_t lpi2c_config = {0};
     LPI2C_MasterGetDefaultConfig(&lpi2c_config);
 
-    lpi2c_config.ignoreAck = true;
+    lpi2c_config.ignoreAck = false;
     lpi2c_config.baudRate_Hz = i2c->speed;
 
     mimxrt_hal_i2c_init(bus_id);
