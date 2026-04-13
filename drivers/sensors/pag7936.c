@@ -148,7 +148,7 @@
 #define PAG7936_GAIN_SCALE          (16)
 #define PAG7936_GAIN_SCALE_F        ((PAG7936_GAIN_SCALE) * 1.0f)
 
-#define PAG7936_EXP_OFFSET          (80)
+#define PAG7936_EXP_MARGIN          (80)
 #define PAG7936_EXP_MIN             (80)
 #define PAG7936_EXP_DIV             (8)
 
@@ -602,7 +602,7 @@ static int set_framerate(omv_csi_t *csi, int framerate) {
         ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_MAXEXPO_15_8, 2, &expm, 1);
         ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_MAXEXPO_7_0, 2, &expl, 1);
         int32_t max_expo = IM_CLAMP(PAG7936_EXPOSURE(exph, expm, expl), PAG7936_EXP_MIN,
-                                    frame_time - PAG7936_EXP_OFFSET) / PAG7936_EXP_DIV;
+                                    frame_time - PAG7936_EXP_MARGIN) / PAG7936_EXP_DIV;
         ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_MAXEXPO_17_16, 2, PAG7936_EXPOSURE_H(exph, max_expo), 1);
         ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_MAXEXPO_15_8, 2, PAG7936_EXPOSURE_M(max_expo), 1);
         ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_MAXEXPO_7_0, 2, PAG7936_EXPOSURE_L(max_expo), 1);
@@ -615,7 +615,7 @@ static int set_framerate(omv_csi_t *csi, int framerate) {
         ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXP_LINE_NUM_15_8, 2, &expm, 1);
         ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXP_LINE_NUM_7_0, 2, &expl, 1);
         int expo = IM_CLAMP(PAG7936_EXPOSURE(exph, expm, expl), PAG7936_EXP_MIN,
-                            frame_time - PAG7936_EXP_OFFSET) / PAG7936_EXP_DIV;
+                            frame_time - PAG7936_EXP_MARGIN) / PAG7936_EXP_DIV;
         ret |= ae_apply(csi, -1, expo);
     }
 
@@ -693,7 +693,7 @@ static int set_auto_exposure(omv_csi_t *csi, int enable, int exposure_us) {
         ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, FRAME_TIME_15_8, 2, &ft_m, 1);
         ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, FRAME_TIME_7_0, 2, &ft_l, 1);
         int32_t frame_time = PAG7936_FRAME_TIME(ft_h, ft_m, ft_l);
-        expo = IM_CLAMP(exposure_us, PAG7936_EXP_MIN, frame_time - PAG7936_EXP_OFFSET) / PAG7936_EXP_DIV;
+        expo = IM_CLAMP(exposure_us, PAG7936_EXP_MIN, frame_time - PAG7936_EXP_MARGIN) / PAG7936_EXP_DIV;
     }
 
     ret |= ae_apply(csi, -1, expo);
