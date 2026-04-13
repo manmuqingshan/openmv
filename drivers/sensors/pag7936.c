@@ -650,32 +650,26 @@ static int set_colorbar(omv_csi_t *csi, int enable) {
 }
 
 static int set_auto_gain(omv_csi_t *csi, int enable, float gain_db, float gain_db_ceiling) {
-    uint8_t reg;
-    int ret = omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, &reg, 1);
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, reg | AE_EXPO_MANUAL_AE_MANUAL_EN, 1);
+    pag7936_state_t *state = csi->priv;
+    state->gain_auto = enable;
+    int ret = 0;
+    int gain = -1;
 
-    if ((enable == 0) && (!isnanf(gain_db)) && (!isinff(gain_db))) {
-        int gain = fast_roundf(expf((gain_db / 20.0f) * M_LN10) * PAG7936_GAIN_SCALE_F);
-        gain = IM_CLAMP(gain, PAG7936_MIN_AGAIN_REG, PAG7936_MAX_AGAIN_REG);
-
-        ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_GAIN_MANUAL_10_8, 2, &reg, 1);
-        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_GAIN_MANUAL_10_8, 2, PAG7936_GAIN_H(reg, gain), 1);
-        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_GAIN_MANUAL_7_0, 2, PAG7936_GAIN_L(gain), 1);
-    } else if ((enable != 0) && (!isnanf(gain_db_ceiling)) && (!isinff(gain_db_ceiling))) {
+    if (enable && !isnanf(gain_db_ceiling) && !isinff(gain_db_ceiling)) {
         int gain_ceiling = fast_roundf(expf((gain_db_ceiling / 20.0f) * M_LN10) * PAG7936_GAIN_SCALE_F);
         gain_ceiling = IM_CLAMP(gain_ceiling, PAG7936_MIN_AGAIN_REG, PAG7936_MAX_AGAIN_REG);
-
+        uint8_t reg;
         ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_MAXGAIN_10_8, 2, &reg, 1);
         ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_MAXGAIN_10_8, 2, PAG7936_GAIN_H(reg, gain_ceiling), 1);
         ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_MAXGAIN_7_0, 2, PAG7936_GAIN_L(gain_ceiling), 1);
     }
 
-    // Force AEC/AGC to reload the new values.
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, SENSOR_UPDATE, 2, SENSOR_UPDATE_FLAG, 1);
-    ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, &reg, 1);
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2,
-                             (reg & ~AE_EXPO_MANUAL_AE_MANUAL_EN) | (enable ? 0 : AE_EXPO_MANUAL_AE_MANUAL_EN), 1);
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, SENSOR_UPDATE, 2, SENSOR_UPDATE_FLAG, 1);
+    if (!enable && !isnanf(gain_db) && !isinff(gain_db)) {
+        gain = fast_roundf(expf((gain_db / 20.0f) * M_LN10) * PAG7936_GAIN_SCALE_F);
+        gain = IM_CLAMP(gain, PAG7936_MIN_AGAIN_REG, PAG7936_MAX_AGAIN_REG);
+    }
+
+    ret |= ae_apply(csi, gain, -1);
     return ret;
 }
 
