@@ -332,6 +332,8 @@ static const uint16_t default_regs[][2] = {
     { 0x000B,   0x02 },
     #endif
     { 0x1400,   0x01 }, // AE auto mode (bit4=0), bit0 preserved at default
+    { 0x140C,   0x00 },
+    { 0x140D,   0x01 }, // AE_MAXGAIN = 256 (16x, hardware max)
     { 0x0801,   0x00 }, // Disable ramp test pattern
     { 0x0810,   0x01 },
     { 0x0814,   0xB3 }, //R_center_rx[10:0]=691
@@ -495,6 +497,7 @@ static int reset(omv_csi_t *csi) {
     pag7936_state_t *state = csi->priv;
     state->gain_auto = true;
     state->expo_auto = true;
+    csi->gainceiling = OMV_CSI_GAINCEILING_16X;
     // Write default registers
     for (int i = 0; default_regs[i][0] && ret == 0; i++) {
         ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, default_regs[i][0], 2, default_regs[i][1], 1);
@@ -620,22 +623,15 @@ static int set_framerate(omv_csi_t *csi, int framerate) {
 }
 
 static int set_gainceiling(omv_csi_t *csi, omv_csi_gainceiling_t gainceiling) {
-    uint8_t aec, reg;
-    int ret = omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, &aec, 1);
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, aec | AE_EXPO_MANUAL_AE_MANUAL_EN, 1);
-
     int new_gainceiling = PAG7936_GAIN_SCALE << (gainceiling + 1);
     if (new_gainceiling > PAG7936_MAX_AGAIN_REG) {
         return -1;
     }
 
-    ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_MAXGAIN_10_8, 2, &reg, 1);
+    uint8_t reg;
+    int ret = omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_MAXGAIN_10_8, 2, &reg, 1);
     ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_MAXGAIN_10_8, 2, PAG7936_GAIN_H(reg, new_gainceiling), 1);
     ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_MAXGAIN_7_0, 2, PAG7936_GAIN_L(new_gainceiling), 1);
-
-    // Force AEC/AGC to reload the new values.
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, SENSOR_UPDATE, 2, SENSOR_UPDATE_FLAG, 1);
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, aec, 1);
     ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, SENSOR_UPDATE, 2, SENSOR_UPDATE_FLAG, 1);
     return ret;
 }
