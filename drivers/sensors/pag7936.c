@@ -178,6 +178,13 @@
 #define PAG7936_HD_FPS_MAX          (60)
 #endif
 
+typedef struct {
+    bool gain_auto;
+    bool expo_auto;
+} pag7936_state_t;
+
+static pag7936_state_t pag7936_state = {};
+
 static const uint16_t default_regs[][2] = {
     #if OMV_PAG7936_MIPI_CSI2
     { 0x004C,   0x8D },
@@ -324,6 +331,7 @@ static const uint16_t default_regs[][2] = {
     { 0x0A35,   0x0D },
     { 0x000B,   0x02 },
     #endif
+    { 0x1400,   0x01 }, // AE auto mode (bit4=0), bit0 preserved at default
     { 0x0801,   0x00 }, // Disable ramp test pattern
     { 0x0810,   0x01 },
     { 0x0814,   0xB3 }, //R_center_rx[10:0]=691
@@ -440,8 +448,53 @@ static const uint16_t hd_regs[][2] = {
     { 0x0000,               0x00 },
 };
 
+// Apply AE/AG hardware mode based on current manual/auto state.
+// gain: register value to write (already clamped), or -1 to freeze from sensor readback.
+// expo: exposure in sensor line units (already clamped), or -1 to freeze from sensor readback.
+static int ae_apply(omv_csi_t *csi, int gain, int expo) {
+    pag7936_state_t *state = csi->priv;
+    uint8_t reg;
+    int ret = omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, &reg, 1);
+
+    if (state->gain_auto && state->expo_auto) {
+        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, reg & ~AE_EXPO_MANUAL_AE_MANUAL_EN, 1);
+    } else {
+        if (gain < 0) {
+            uint8_t gainh, gainl;
+            ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, TOTAL_GAIN_10_8, 2, &gainh, 1);
+            ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, TOTAL_GAIN_7_0, 2, &gainl, 1);
+            gain = PAG7936_GAIN(gainh, gainl);
+        }
+
+        if (expo < 0) {
+            uint8_t exph, expm, expl;
+            ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXP_LINE_NUM_17_16, 2, &exph, 1);
+            ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXP_LINE_NUM_15_8, 2, &expm, 1);
+            ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXP_LINE_NUM_7_0, 2, &expl, 1);
+            expo = PAG7936_EXPOSURE(exph, expm, expl) / PAG7936_EXP_DIV;
+        }
+
+        ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_GAIN_MANUAL_10_8, 2, &reg, 1);
+        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_GAIN_MANUAL_10_8, 2, PAG7936_GAIN_H(reg, gain), 1);
+        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_GAIN_MANUAL_7_0, 2, PAG7936_GAIN_L(gain), 1);
+
+        ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL_17_16, 2, &reg, 1);
+        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL_17_16, 2, PAG7936_EXPOSURE_H(reg, expo), 1);
+        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL_15_8, 2, PAG7936_EXPOSURE_M(expo), 1);
+        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL_7_0, 2, PAG7936_EXPOSURE_L(expo), 1);
+
+        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, reg | AE_EXPO_MANUAL_AE_MANUAL_EN, 1);
+    }
+
+    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, SENSOR_UPDATE, 2, SENSOR_UPDATE_FLAG, 1);
+    return ret;
+}
+
 static int reset(omv_csi_t *csi) {
     int ret = 0;
+    pag7936_state_t *state = csi->priv;
+    state->gain_auto = true;
+    state->expo_auto = true;
     // Write default registers
     for (int i = 0; default_regs[i][0] && ret == 0; i++) {
         ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, default_regs[i][0], 2, default_regs[i][1], 1);
@@ -745,6 +798,7 @@ static int ioctl(omv_csi_t *csi, int request, va_list ap) {
 }
 
 int pag7936_init(omv_csi_t *csi) {
+    csi->priv = &pag7936_state;
     // Initialize csi flags.
     csi->vsync_pol = 0;
     csi->hsync_pol = 0;
