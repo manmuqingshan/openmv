@@ -686,35 +686,21 @@ static int get_gain_db(omv_csi_t *csi, float *gain_db) {
 }
 
 static int set_auto_exposure(omv_csi_t *csi, int enable, int exposure_us) {
-    uint8_t reg, frame_time_20_16, frame_time_15_8, frame_time_7_0;
-    int ret = omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, &reg, 1);
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, reg | AE_EXPO_MANUAL_AE_MANUAL_EN, 1);
+    pag7936_state_t *state = csi->priv;
+    state->expo_auto = enable;
+    int ret = 0;
+    int expo = -1;
 
-    ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, FRAME_TIME_20_16, 2, &frame_time_20_16, 1);
-    ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, FRAME_TIME_15_8, 2, &frame_time_15_8, 1);
-    ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, FRAME_TIME_7_0, 2, &frame_time_7_0, 1);
-
-    int32_t frame_time_us = PAG7936_FRAME_TIME(frame_time_20_16, frame_time_15_8, frame_time_7_0);
-    exposure_us = IM_CLAMP(exposure_us, PAG7936_EXP_MIN, (frame_time_us - PAG7936_EXP_OFFSET)) / PAG7936_EXP_DIV;
-
-    if ((enable == 0) && (exposure_us >= 0)) {
-        ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL_17_16, 2, &reg, 1);
-        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL_17_16, 2, PAG7936_EXPOSURE_H(reg, exposure_us), 1);
-        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL_15_8, 2, PAG7936_EXPOSURE_M(exposure_us), 1);
-        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL_7_0, 2, PAG7936_EXPOSURE_L(exposure_us), 1);
-    } else if ((enable != 0) && (exposure_us >= 0)) {
-        ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_MAXEXPO_17_16, 2, &reg, 1);
-        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_MAXEXPO_17_16, 2, PAG7936_EXPOSURE_H(reg, exposure_us), 1);
-        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_MAXEXPO_15_8, 2, PAG7936_EXPOSURE_M(exposure_us), 1);
-        ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_MAXEXPO_7_0, 2, PAG7936_EXPOSURE_L(exposure_us), 1);
+    if (!enable && exposure_us >= 0) {
+        uint8_t ft_h, ft_m, ft_l;
+        ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, FRAME_TIME_20_16, 2, &ft_h, 1);
+        ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, FRAME_TIME_15_8, 2, &ft_m, 1);
+        ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, FRAME_TIME_7_0, 2, &ft_l, 1);
+        int32_t frame_time = PAG7936_FRAME_TIME(ft_h, ft_m, ft_l);
+        expo = IM_CLAMP(exposure_us, PAG7936_EXP_MIN, frame_time - PAG7936_EXP_OFFSET) / PAG7936_EXP_DIV;
     }
 
-    // Force AEC/AGC to reload the new values.
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, SENSOR_UPDATE, 2, SENSOR_UPDATE_FLAG, 1);
-    ret |= omv_i2c_read_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2, &reg, 1);
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, AE_EXPO_MANUAL, 2,
-                             (reg & ~AE_EXPO_MANUAL_AE_MANUAL_EN) | (enable ? 0 : AE_EXPO_MANUAL_AE_MANUAL_EN), 1);
-    ret |= omv_i2c_write_reg(csi->i2c, csi->slv_addr, SENSOR_UPDATE, 2, SENSOR_UPDATE_FLAG, 1);
+    ret |= ae_apply(csi, -1, expo);
     return ret;
 }
 
