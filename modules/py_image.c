@@ -1877,15 +1877,18 @@ static mp_obj_t py_image_line_op(size_t n_args, const mp_obj_t *pos_args, mp_map
         mask = py_helper_arg_to_image(args[ARG_mask].u_obj, ARG_IMAGE_MUTABLE | ARG_IMAGE_ALLOC);
     }
 
-    if ((!callback) && mask) {
+    bool callback_is_mask = (!callback) && mask;
+    if (callback_is_mask) {
         callback = imlib_mask_line_op;
     }
 
     void *dst_row_override = NULL;
     if (callback) {
         dst_row_override = uma_calloc(image_line_size(image), UMA_CACHE);
-        // Necessary for alpha blending to work correctly.
-        args[ARG_hint].u_int |= IMAGE_HINT_BLACK_BACKGROUND;
+        if (!callback_is_mask) {
+            // Necessary for alpha blending to work correctly.
+            args[ARG_hint].u_int |= IMAGE_HINT_BLACK_BACKGROUND;
+        }
     }
 
     imlib_draw_image(image, other, args[ARG_x].u_int, args[ARG_y].u_int, x_scale, y_scale, &roi,
