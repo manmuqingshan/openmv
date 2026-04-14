@@ -38,7 +38,6 @@
 #include "shared/runtime/gchelper.h"
 #include "shared/runtime/pyexec.h"
 #include "shared/runtime/softtimer.h"
-#include "tusb.h"
 #include "modmachine.h"
 #include "mpuart.h"
 #include "ospi_flash.h"
@@ -49,6 +48,10 @@
 #include "extmod/vfs.h"
 #include "extmod/vfs_fat.h"
 #include "extmod/modmachine.h"
+
+#if OMV_USB_STACK_TINYUSB
+#include "tusb.h"
+#endif
 
 #if MICROPY_PY_LWIP
 #include "lwip/init.h"
