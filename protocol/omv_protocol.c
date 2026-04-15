@@ -117,11 +117,16 @@ int omv_protocol_init_default() {
 }
 
 void omv_protocol_deinit(void) {
-    // Deinitialize all channels (including transport at index 0)
+    // Deinitialize all channels, unregister dynamic ones.
     for (int i = 0; i < OMV_PROTOCOL_MAX_CHANNELS; i++) {
-        if (ctx.channels[i] && ctx.channels[i]->deinit) {
-            ctx.channels[i]->deinit(ctx.channels[i]);
-            ctx.channels[i] = NULL;
+        if (ctx.channels[i]) {
+            if (ctx.channels[i]->deinit) {
+                ctx.channels[i]->deinit(ctx.channels[i]);
+            }
+            if (ctx.channels[i]->flags & OMV_PROTOCOL_CHANNEL_FLAG_DYNAMIC) {
+                ctx.channels[i] = NULL;
+                ctx.channels_count--;
+            }
         }
     }
 }
