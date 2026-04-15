@@ -260,24 +260,32 @@ int ml_backend_run_inference(py_ml_model_obj_t *model) {
     LL_ATON_RT_RuntimeInit();
     LL_ATON_RT_Init_Network(&state->nn_inst);
 
+    mp_obj_t exc = MP_OBJ_NULL;
     do {
-        // Execute first/next runtime step
         ll_aton_rt_ret = LL_ATON_RT_RunEpochBlock(&state->nn_inst);
 
         if (ll_aton_rt_ret == LL_ATON_RT_WFE) {
-            // Epoch block is still running - wait for the NPU interrupt.
             LL_ATON_OSAL_WFE();
-        } else if (ll_aton_rt_ret == LL_ATON_RT_NO_WFE) {
-            // Epoch block finished and NPU is idle - handle pending events.
-            // Note MSC callbacks may erase/write the SPI flash, which exits
-            // (XIP) mode. It's only safe to handle events when the NPU is idle.
-            mp_handle_pending(MP_HANDLE_PENDING_CALLBACKS_ONLY);
+        } else if (ll_aton_rt_ret == LL_ATON_RT_NO_WFE && exc == MP_OBJ_NULL) {
+            // NPU is idle between epoch blocks, safe to handle
+            // events including flash I/O (MSC) that exits XIP mode.
+            nlr_buf_t nlr;
+            if (nlr_push(&nlr) == 0) {
+                mp_event_handle_nowait();
+                nlr_pop();
+            } else {
+                exc = nlr.ret_val;
+            }
         }
     } while (ll_aton_rt_ret != LL_ATON_RT_DONE);
 
     LL_ATON_RT_DeInit_Network(&state->nn_inst);
     LL_ATON_RT_RuntimeDeInit();
     uma_transient_release();
+
+    if (exc != MP_OBJ_NULL) {
+        nlr_raise(exc);
+    }
 
     return 0;
 }
