@@ -183,15 +183,26 @@ mp_uint_t __wrap_mp_hal_stdout_tx_strn(const char *str, mp_uint_t len) {
     const omv_protocol_channel_t *channel = omv_protocol_find_channel(OMV_PROTOCOL_CHANNEL_ID_STDOUT);
     stdio_channel_context_t *ctx = channel->priv;
 
-    // On overflow, reset the ring buffer, if this string fits
-    // entirely in the buffer, to recover from broken strings.
-    for (int i = 0; i < len; i++) {
-        if (ringbuf_put(&ctx->ringbuf, str[i]) == -1 && len <= ctx->ringbuf.size) {
-            ctx->ringbuf.iget = 0;
-            ctx->ringbuf.iput = 0;
-            ringbuf_put(&ctx->ringbuf, str[i]);
-        }
+    ringbuf_t *rb = &ctx->ringbuf;
+    size_t free = ringbuf_free(rb);
+
+    if (len <= free) {
+        // Enough space for the entire string.
+        ringbuf_memcpy_put_internal(rb, (const uint8_t *) str, len);
+    } else {
+        // Not enough free space, reset and keep the tail of the string.
+        size_t cap = rb->size - 1;
+        size_t offset = (len > cap) ? len - cap : 0;
+        rb->iget = 0;
+        rb->iput = 0;
+        ringbuf_memcpy_put_internal(rb, (const uint8_t *) str + offset, len - offset);
     }
+
+    // Notify the host when the buffer is above 25% full.
+    if (ringbuf_avail(rb) > (rb->size / 4)) {
+        omv_protocol_send_event(OMV_PROTOCOL_CHANNEL_ID_STDOUT, OMV_PROTOCOL_EVENT_NOTIFY, false);
+    }
+
     return len;
 }
 
