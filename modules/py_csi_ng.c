@@ -64,6 +64,7 @@
 typedef struct _py_csi_obj_t {
     mp_obj_base_t base;
     omv_csi_t *csi;
+    void *raw;
     mp_obj_t vsync_cb;
     mp_obj_t frame_cb;
 } py_csi_obj_t;
@@ -130,6 +131,7 @@ static mp_obj_t py_csi_deinit(mp_obj_t self_in) {
         if (fb) {
             uma_free(fb->raw_base);
         }
+        self->raw = NULL;
         self->csi->fb = NULL;
     }
 
@@ -1373,6 +1375,8 @@ mp_obj_t py_csi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, 
 
     if (csi->fb == NULL) {
         csi->fb = (framebuffer_t *) m_malloc(sizeof(framebuffer_t));
+        // Prevent GC from collecting the auxiliary framebuffer.
+        self->raw = csi->fb;
         framebuffer_init(csi->fb, NULL, 0, true, true);
     }
 
