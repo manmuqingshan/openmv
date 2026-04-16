@@ -34,6 +34,7 @@
 #include "omv_protocol.h"
 #include "board_config.h"
 #include "tusb.h"
+#include "device/dcd.h"
 
 #ifndef OMV_PROTOCOL_USB_CHANNEL_TIMEOUT_MS
 #define OMV_PROTOCOL_USB_CHANNEL_TIMEOUT_MS (1500)
@@ -42,6 +43,9 @@
 static bool usb_channel_active;
 
 static size_t usb_channel_size(const omv_protocol_channel_t *channel) {
+    if (!usb_channel_active) {
+        return 0;
+    }
     if (tud_task_event_ready()) {
         tud_task_ext(0, false);
     }
@@ -49,6 +53,9 @@ static size_t usb_channel_size(const omv_protocol_channel_t *channel) {
 }
 
 static int usb_channel_flush(const omv_protocol_channel_t *channel) {
+    if (!usb_channel_active) {
+        return -1;
+    }
     if (tud_task_event_ready()) {
         tud_task_ext(0, false);
     }
@@ -62,13 +69,17 @@ static bool usb_channel_is_active(const omv_protocol_channel_t *channel) {
 static int usb_channel_read(const omv_protocol_channel_t *channel, uint32_t offset, size_t size, void *data) {
     size_t bytes = 0;
     uint32_t start_ms = mp_hal_ticks_ms();
-    while (bytes < size && !check_timeout_ms(start_ms, OMV_PROTOCOL_USB_CHANNEL_TIMEOUT_MS)) {
+
+    while (bytes < size && usb_channel_active) {
         bytes += tud_cdc_read((uint8_t *) data + bytes, size - bytes);
         if (tud_task_event_ready()) {
             tud_task_ext(0, false);
         }
         if (bytes < size) {
             mp_event_handle_nowait();
+        }
+        if (check_timeout_ms(start_ms, OMV_PROTOCOL_USB_CHANNEL_TIMEOUT_MS)) {
+            break;
         }
     }
 
@@ -78,13 +89,17 @@ static int usb_channel_read(const omv_protocol_channel_t *channel, uint32_t offs
 static int usb_channel_write(const omv_protocol_channel_t *channel, uint32_t offset, size_t size, const void *data) {
     size_t bytes = 0;
     uint32_t start_ms = mp_hal_ticks_ms();
-    while (bytes < size && !check_timeout_ms(start_ms, OMV_PROTOCOL_USB_CHANNEL_TIMEOUT_MS)) {
+
+    while (bytes < size && usb_channel_active) {
         bytes += tud_cdc_write((uint8_t *) data + bytes, size - bytes);
         if (tud_task_event_ready()) {
             tud_task_ext(0, false);
         }
         if (bytes < size) {
             mp_event_handle_nowait();
+        }
+        if (check_timeout_ms(start_ms, OMV_PROTOCOL_USB_CHANNEL_TIMEOUT_MS)) {
+            break;
         }
     }
 
@@ -132,7 +147,11 @@ void tud_event_hook_cb(uint8_t rhport, uint32_t eventid, bool in_isr) {
     static mp_sched_node_t usb_channel_node;
     extern void __mp_tud_event_hook_cb(uint8_t rhport, uint32_t eventid, bool in_isr);
 
-    if (!omv_protocol_is_active()) {
+    if (eventid == DCD_EVENT_BUS_RESET) {
+        usb_channel_active = false;
+    }
+
+    if (!usb_channel_active) {
         __mp_tud_event_hook_cb(rhport, eventid, in_isr);
     } else if (tud_task_event_ready()) {
         mp_sched_schedule_node(&usb_channel_node, usb_channel_task);
