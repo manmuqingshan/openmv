@@ -66,9 +66,6 @@ MEMORY
   #if defined(OMV_DRAM_ORIGIN)
   DRAM (xrw)        : ORIGIN = OMV_DRAM_ORIGIN,      LENGTH = OMV_DRAM_LENGTH
   #endif
-  #if defined(OMV_SSRAM_ORIGIN)
-  SSRAM (xrw)       : ORIGIN = OMV_SSRAM_ORIGIN,     LENGTH = OMV_SSRAM_LENGTH
-  #endif
   #if defined(OMV_FLASH_FFS_ORIGIN)
   FLASH_FFS (rx)    : ORIGIN = OMV_FLASH_FFS_ORIGIN, LENGTH = OMV_FLASH_FFS_LENGTH
   #endif
@@ -161,13 +158,6 @@ SECTIONS
     . = ALIGN(32);
     _cm4_ram_end = .;
   } >OMV_CM4_BOOT_MEMORY
-  #endif
-
-  #ifdef OMV_STANDBY_MEMORY
-  .standby_mem (NOLOAD) : ALIGN(4)
-  {
-    *(.standby_mem)
-  } >OMV_STANDBY_MEMORY
   #endif
 
   #ifdef OMV_RAMFUNC_MEMORY

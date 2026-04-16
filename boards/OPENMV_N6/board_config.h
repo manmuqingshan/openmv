@@ -144,7 +144,6 @@
 // Linker script constants (see common.ld.S).
 #define OMV_MAIN_MEMORY                     SRAM1  // Data/BSS memory
 #define OMV_STACK_MEMORY                    SRAM1  // stack memory
-#define OMV_STANDBY_MEMORY                  SSRAM
 #define OMV_RAMFUNC_MEMORY                  ITCM
 #define OMV_STACK_SIZE                      (64K)
 #define OMV_HEAP_MEMORY                     SRAM1  // libc/sbrk heap memory
@@ -177,10 +176,8 @@
 #define OMV_DTCM_LENGTH                     128K
 #define OMV_ITCM_ORIGIN                     0x10000000
 #define OMV_ITCM_LENGTH                     64K
-#define OMV_SSRAM_ORIGIN                    0x34000000  // AXISRAM1 (Retained during standby)
-#define OMV_SSRAM_LENGTH                    8K          // 8KB
-#define OMV_SRAM1_ORIGIN                    0x34002000  // AXISRAM1
-#define OMV_SRAM1_LENGTH                    1016K       // 1016K
+#define OMV_SRAM1_ORIGIN                    0x34000000  // AXISRAM1
+#define OMV_SRAM1_LENGTH                    1M          // 1MB
 #define OMV_SRAM2_ORIGIN                    0x34100000  // AXISRAM2
 #define OMV_SRAM2_LENGTH                    1M          // 1MB
 #define OMV_SRAM3_ORIGIN                    0x34200000  // AXISRAM3-6 (NPU AXI SRAMs)
