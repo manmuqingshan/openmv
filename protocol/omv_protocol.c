@@ -757,7 +757,7 @@ void omv_protocol_process(const omv_protocol_packet_t *packet) {
             omv_protocol_mem_stats_t *resp = (omv_protocol_mem_stats_t *) resp_buf;
 
             // GC stats
-            gc_info(&gc);
+            gc_info_fast(&gc);
 
             resp->count = count;
             resp->entries[0].type = OMV_PROTOCOL_MEM_TYPE_GC;
