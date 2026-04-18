@@ -38,6 +38,7 @@
 #include "../protocol/omv_protocol.h"
 #include "shared/runtime/softtimer.h"
 #include "umalloc.h"
+#include "cmsis_compiler.h"
 
 /***************************************************************************
 * Python Channel Delegates
@@ -312,6 +313,12 @@ MP_DEFINE_CONST_OBJ_TYPE(
 * Protocol Module
 ***************************************************************************/
 static void py_protocol_task(mp_sched_node_t *node) {
+    // Guard against re-entrancy from PendSV. lwip is dispatched from
+    // PendSV which can preempt the protocol task mid-call, leading to
+    // re-entrancy (e.g. lwip -> handle_pending -> protocol -> lwip).
+    if (__get_IPSR() != 0) {
+        return;
+    }
     omv_protocol_task();
 }
 
