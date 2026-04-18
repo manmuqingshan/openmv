@@ -37,6 +37,7 @@
 
 #include "../protocol/omv_protocol.h"
 #include "shared/runtime/softtimer.h"
+#include "umalloc.h"
 
 /***************************************************************************
 * Python Channel Delegates
@@ -63,14 +64,27 @@ static mp_obj_t py_channel_call(mp_obj_t obj, qstr method_name, size_t n_args, c
         dest[i + 2] = args[i];
     }
 
+    // Lock uma_collect so caught exceptions in the VM don't free UMA
+    // blocks that C callers above us still own (restored after the call).
+    uma_collect_lock();
+
+    // Clear vm_abort so the Python method runs to completion even if
+    // the protocol has scheduled an abort (restored after the call).
+    bool vm_abort = MP_STATE_VM(vm_abort);
+    MP_STATE_VM(vm_abort) = false;
+
     // Call the method with exception handling
     nlr_buf_t nlr;
     if (nlr_push(&nlr) == 0) {
         mp_obj_t result = mp_call_method_n_kw(n_args, 0, dest);
         nlr_pop();
+        uma_collect_unlock();
+        MP_STATE_VM(vm_abort) = vm_abort;
         return result;
     } else {
         // Exception occurred
+        uma_collect_unlock();
+        MP_STATE_VM(vm_abort) = vm_abort;
         return MP_OBJ_NULL;
     }
 }
