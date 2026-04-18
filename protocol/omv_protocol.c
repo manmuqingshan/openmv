@@ -382,8 +382,9 @@ int omv_protocol_send_packet(uint8_t opcode, uint8_t channel_id, size_t size, co
                 sent += transport->write(transport, 0, 4, crc32_bytes);
             }
 
-            if (transport->flush) {
-                transport->flush(transport);
+            if (transport->flush && transport->flush(transport) < 0) {
+                ctx.stats.transport_errors++;
+                return -1;
             }
 
             if (sent != OMV_PROTOCOL_HEADER_SIZE + frag_len + (frag_len > 0 ? 4 : 0)) {

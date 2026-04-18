@@ -35,6 +35,7 @@
 #include "board_config.h"
 #include "tusb.h"
 #include "device/dcd.h"
+#include "device/usbd_pvt.h"
 
 #ifndef OMV_PROTOCOL_USB_CHANNEL_TIMEOUT_MS
 #define OMV_PROTOCOL_USB_CHANNEL_TIMEOUT_MS (1500)
@@ -134,8 +135,12 @@ void tud_cdc_line_state_cb(uint8_t instance, bool dtr, bool rts) {
 
     if (!dtr) {
         usb_channel_active = false;
+        tud_cdc_write_clear();
     } else {
         usb_channel_active = (coding.bit_rate == OMV_PROTOCOL_MAGIC_BAUDRATE);
+        if (usb_channel_active && usbd_edpt_stalled(TUD_OPT_RHPORT, USBD_CDC_EP_IN)) {
+            usbd_edpt_clear_stall(TUD_OPT_RHPORT, USBD_CDC_EP_IN);
+        }
     }
 
     if (!usb_channel_active) {
