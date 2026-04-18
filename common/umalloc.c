@@ -36,6 +36,7 @@
 
 static int uma_num_pools;
 static uma_pool_t uma_pools[UMA_MAX_POOLS];
+static volatile int uma_collect_locked;
 
 
 void uma_init(void) {
@@ -358,7 +359,18 @@ void uma_transient_release(void) {
     }
 }
 
+void uma_collect_lock(void) {
+    uma_collect_locked++;
+}
+
+void uma_collect_unlock(void) {
+    uma_collect_locked--;
+}
+
 void uma_collect(void) {
+    if (uma_collect_locked) {
+        return;
+    }
     for (int i = 0; i < uma_num_pools; i++) {
         size_t nblocks = 0;
         size_t freed = tlsf_collect(uma_pools[i].tlsf, &nblocks);
