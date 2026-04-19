@@ -133,7 +133,10 @@ static int tof_vl53lx_start(vl53lx_dev_t *vl53lx_dev) {
     error |= vl53lx_set_sharpener_percent(vl53lx_dev, 50);
 
     // Start ranging.
-    return error | vl53lx_start_ranging(vl53lx_dev);
+    error |= vl53lx_start_ranging(vl53lx_dev);
+    mp_hal_delay_ms(10);
+
+    return error;
 }
 
 static int tof_vl53lx_recover(vl53lx_dev_t *vl53lx_dev) {
