@@ -151,10 +151,13 @@ static void tof_vl53lx_get_depth(vl53lx_dev_t *vl53lx_dev, float *frame, int tim
     vl53lx_data_t ranging_data;
 
     for (mp_uint_t start = mp_hal_ticks_ms(); !frame_ready; mp_hal_delay_ms(1)) {
-        if (vl53lx_check_data_ready(vl53lx_dev, &frame_ready) != 0) {
+        uint8_t status = vl53lx_check_data_ready(vl53lx_dev, &frame_ready);
+        // 0xFF signals an I2C bus failure from the platform layer.
+        if (status == 0xFF) {
             tof_vl53lx_recover(vl53lx_dev);
             mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("VL53LX ranging failed"));
         }
+        // GO2 errors (other non-zero status) are transient, keep polling.
 
         if ((timeout > 0) && (mp_hal_ticks_ms() - start) >= timeout) {
             tof_vl53lx_recover(vl53lx_dev);
