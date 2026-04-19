@@ -394,12 +394,12 @@ static mp_obj_t py_protocol_init(size_t n_args, const mp_obj_t *pos_args, mp_map
 
     // Start periodic timer if timer_ms > 0
     if (timer_ms > 0) {
-        // Soft timer for periodic protocol task scheduling
-        static soft_timer_entry_t protocol_soft_timer;
-
-        soft_timer_static_init(&protocol_soft_timer, SOFT_TIMER_MODE_PERIODIC,
+        soft_timer_entry_t *timer = m_new_obj(soft_timer_entry_t);
+        soft_timer_static_init(timer, SOFT_TIMER_MODE_PERIODIC,
                                timer_ms, py_protocol_soft_timer_callback);
-        soft_timer_insert(&protocol_soft_timer, timer_ms);
+        timer->flags = SOFT_TIMER_FLAG_GC_ALLOCATED;
+        soft_timer_insert(timer, timer_ms);
+        MP_STATE_PORT(protocol_soft_timer) = MP_OBJ_FROM_PTR(timer);
     }
 
     return mp_const_none;
@@ -507,7 +507,8 @@ const mp_obj_module_t protocol_module = {
 // Register the module
 MP_REGISTER_EXTENSIBLE_MODULE(MP_QSTR_protocol, protocol_module);
 
-// Register root pointer for dynamic protocol channels
+// Register root pointers for dynamic protocol channels and soft timer
+MP_REGISTER_ROOT_POINTER(mp_obj_t protocol_soft_timer);
 MP_REGISTER_ROOT_POINTER(mp_obj_t protocol_channels[OMV_PROTOCOL_MAX_CHANNELS]);
 
 #endif // MICROPY_PY_PROTOCOL
