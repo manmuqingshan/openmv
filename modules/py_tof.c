@@ -153,24 +153,24 @@ static void tof_vl53lx_get_depth(vl53lx_dev_t *vl53lx_dev, float *frame, int tim
     // Note depending on the config in platform.h, this struct can be too big to alloc on the stack.
     vl53lx_data_t ranging_data;
 
-    for (mp_uint_t start = mp_hal_ticks_ms(); !frame_ready; mp_hal_delay_ms(1)) {
+    for (mp_uint_t start = mp_hal_ticks_ms(); ; mp_hal_delay_ms(1)) {
         uint8_t status = vl53lx_check_data_ready(vl53lx_dev, &frame_ready);
-        // 0xFF signals an I2C bus failure from the platform layer.
-        if (status == 0xFF) {
+
+        if (status == 0 && frame_ready) {
+            status = vl53lx_get_ranging_data(vl53lx_dev, &ranging_data);
+        }
+
+        if (status == 0 && frame_ready) {
+            break;
+        }
+
+        // - Corrupted frame (header/footer mismatch), the read raced with
+        //   a sensor update. Wait for the next data_ready and retry read.
+        // - GO2 errors (other non-zero status) are transient, keep polling.
+        if ((timeout > 0) && (mp_hal_ticks_ms() - start) >= timeout) {
             tof_vl53lx_recover(vl53lx_dev);
             mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("VL53LX ranging failed"));
         }
-        // GO2 errors (other non-zero status) are transient, keep polling.
-
-        if ((timeout > 0) && (mp_hal_ticks_ms() - start) >= timeout) {
-            tof_vl53lx_recover(vl53lx_dev);
-            mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("VL53LX ranging timeout"));
-        }
-    }
-
-    if (vl53lx_get_ranging_data(vl53lx_dev, &ranging_data) != 0) {
-        tof_vl53lx_recover(vl53lx_dev);
-        mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("VL53LX ranging failed"));
     }
 
     for (int i = 0, ii = OMV_TOF_VL53LX_WIDTH * OMV_TOF_VL53LX_HEIGHT; i < ii; i++) {
