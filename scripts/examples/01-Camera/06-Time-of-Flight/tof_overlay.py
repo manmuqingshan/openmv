@@ -24,8 +24,10 @@ clock = time.clock()
 
 while True:
     clock.tick()
+
     # Capture an image
     img = csi0.snapshot()
+
     # Capture TOF data [depth map, min distance, max distance]
     try:
         depth, dmin, dmax = tof.read_depth(vflip=True, hmirror=True)
