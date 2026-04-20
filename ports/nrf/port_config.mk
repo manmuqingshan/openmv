@@ -52,6 +52,7 @@ CFLAGS += -D$(MCU) \
           -mfpu=$(FPU) \
           -mfloat-abi=hard \
           -DCMSIS_MCU_H='<$(MCU_LOWER).h>' \
+          -DOMV_CPU_FREQ_HZ=$(CPU_FREQ_HZ) \
           -DMP_PORT_NO_SOFTTIMER \
           $(OMV_BOARD_CFLAGS)
 

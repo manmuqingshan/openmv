@@ -40,7 +40,10 @@
 uint8_t gamma_table[256];
 #endif
 
+uint32_t imlib_last_poll_cyc;
+
 void imlib_init() {
+    omv_cycles_init();
     #if (OMV_GPU_ENABLE == 1)
     omv_gpu_init();
     #endif

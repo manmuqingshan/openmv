@@ -37,6 +37,7 @@ COMMON_SRC_C += \
     memcpy.c \
     vospi.c \
     queue.c \
+    omv_cycles.c \
     omv_profiler.c \
     umalloc.c \
 

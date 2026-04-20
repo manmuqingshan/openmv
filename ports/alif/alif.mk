@@ -35,6 +35,7 @@ BUILD := $(BUILD)/$(MCU_CORE)
 FIRMWARE := $(FIRMWARE)_$(MCU_CORE)
 DAVE2D_DIR=drivers/dave2d
 CORE_M55_HP := $(if $(filter M55_HP,$(MCU_CORE)),1,0)
+CPU_FREQ_HZ := $($(MCU_CORE)_CPU_FREQ_HZ)
 CMSIS_MCU_H := '<system_utils.h>'
 
 ROMFS_CONFIG := $(OMV_BOARD_CONFIG_DIR)/romfs_config.json
@@ -69,6 +70,7 @@ CFLAGS += -D__VFP_FP__ \
           -DPINS_AF_H=$(PINS_AF_H) \
           -DCMSIS_MCU_H=$(CMSIS_MCU_H) \
           -DALIF_CMSIS_H=$(CMSIS_MCU_H) \
+          -DOMV_CPU_FREQ_HZ=$(CPU_FREQ_HZ) \
           -DOMV_NOSYS_STUBS_ENABLE=1 \
           -DTUSB_ALIF_NO_IRQ_CFG \
           -DWITH_MM_FIXED_RANGE #WITH_MM_DYNAMIC -DNO_MSIZE
