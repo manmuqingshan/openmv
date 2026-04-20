@@ -43,6 +43,8 @@
 #include "imlib_config.h"
 #include "board_config.h"
 #include "omv_common.h"
+#include "omv_cycles.h"
+#include "py/runtime.h"
 #include "omv_profiler.h"
 #include "py/runtime.h"
 
@@ -117,12 +119,28 @@
 #define IM_DEG2RAD(x)            (((x) * IMLIB_PI) / 180.0f)
 #define IM_RAD2DEG(x)            (((x) * 180.0f) / IMLIB_PI)
 
-#define imlib_poll_events()                \
-    do {                                   \
-        static unsigned int _poll_ctr = 0; \
-        if (!(++_poll_ctr & 0x1F)) {       \
-            mp_event_handle_nowait();      \
-        }                                  \
+#ifndef IMLIB_POLL_INTERVAL_CYC
+#define IMLIB_POLL_INTERVAL_CYC  (20UL * OMV_CYCLES_PER_MS)
+#endif
+
+extern uint32_t imlib_last_poll_cyc;
+
+#define imlib_poll_events()                                        \
+    do {                                                           \
+        if ((uint32_t) (omv_cycles_now() - imlib_last_poll_cyc) >= \
+            IMLIB_POLL_INTERVAL_CYC) {                             \
+            imlib_last_poll_cyc = omv_cycles_now();                \
+            mp_event_handle_nowait();                              \
+        }                                                          \
+    } while (0)
+
+#define imlib_poll_events_noexc()                                  \
+    do {                                                           \
+        if ((uint32_t) (omv_cycles_now() - imlib_last_poll_cyc) >= \
+            IMLIB_POLL_INTERVAL_CYC) {                             \
+            imlib_last_poll_cyc = omv_cycles_now();                \
+            mp_handle_pending(MP_HANDLE_PENDING_CALLBACKS_ONLY);   \
+        }                                                          \
     } while (0)
 
 int imlib_ksize_to_n(int ksize);
