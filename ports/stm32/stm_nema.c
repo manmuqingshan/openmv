@@ -35,6 +35,7 @@
 #include "irq.h"
 
 #include "omv_common.h"
+#include "imlib.h"
 #include "nema_core.h"
 #include "nema_sys_defs.h"
 
@@ -113,7 +114,7 @@ int nema_wait_irq_cl(int cl_id) {
         if (elapsed >= OMV_GPU_NEMA_TIMEOUT_MS) {
             return -1;
         }
-        mp_handle_pending(MP_HANDLE_PENDING_CALLBACKS_ONLY);
+        imlib_poll_events_noexc();
     }
     return 0;
 }
