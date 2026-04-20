@@ -64,6 +64,7 @@ CFLAGS += -D$(MCU) \
           -D__VFP_FP__ \
           -DUSE_FULL_LL_DRIVER \
           -DHSE_VALUE=$(OMV_HSE_VALUE)\
+          -DOMV_CPU_FREQ_HZ=$(CPU_FREQ_HZ) \
           -DOMV_VTOR_BASE=$(OMV_FIRM_ADDR) \
           -DCMSIS_MCU_H='<$(MCU_LOWER).h>' \
           -DOMV_NOSYS_STUBS_ENABLE=1 \
@@ -185,11 +186,6 @@ endif
 
 $(ROMFS_IMAGE): $(ROMFS_CONFIG) | $(FIRMWARE) $(BOOTLOADER)
 	$(ECHO) "GEN romfs image"
-	$(PYTHON) $(TOOLS_DIR)/$(MKROMFS) \
-            --top-dir $(TOP_DIR) \
-            --out-dir $(FW_DIR) \
-            --build-dir $(BUILD)/lib/models \
-            $(STEDGEAI_ARGS) --config $(ROMFS_CONFIG)
 	touch $@
 
 deploy: $(ROMFS_IMAGE)

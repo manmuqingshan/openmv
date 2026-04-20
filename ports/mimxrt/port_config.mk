@@ -52,6 +52,7 @@ CFLAGS += -DCPU_$(MCU) \
           -D__FPU_PRESENT=1 \
           -D__VFP_FP__ \
           -DHSE_VALUE=$(OMV_HSE_VALUE) \
+          -DOMV_CPU_FREQ_HZ=$(CPU_FREQ_HZ) \
           -DMICROPY_PY_MACHINE_SDCARD=1 \
           -DXIP_EXTERNAL_FLASH=1 \
 	      -DXIP_BOOT_HEADER_ENABLE=1 \
