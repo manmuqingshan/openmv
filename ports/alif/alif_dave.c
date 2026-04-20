@@ -15,6 +15,7 @@
 #include "dave_registermap.h"
 #include "dave_driver.h"
 #include "irq.h"
+#include "py/runtime.h"
 
 #define D1_REG(index)       ((long *) GPU2D_BASE)[index]
 #define D1_DEV(handle)      ((d1_device_intern *) handle)
@@ -75,6 +76,7 @@ int d1_queryirq(d1_device *handle, int irqmask, int timeout) {
             --s_dlists_done;
             return GPU2D_IRQ_IRQn;
         }
+        mp_handle_pending(MP_HANDLE_PENDING_CALLBACKS_ONLY);
     }
     return 0;
 }
