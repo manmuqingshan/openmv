@@ -774,6 +774,7 @@ void imlib_draw_row_teardown(imlib_draw_row_data_t *data, bool free_row_buffer) 
 // Draws (x_end - x_start) pixels.
 // src width must be equal to dst width.
 void imlib_draw_row(int x_start, int x_end, int y_row, imlib_draw_row_data_t *data) {
+    imlib_poll_events();
 #define BLEND_RGB566(src_pixel, dst_pixel, smuad_alpha)                           \
     ({                                                                            \
         __typeof__ (src_pixel) _src_pixel = (src_pixel);                          \
@@ -3192,6 +3193,7 @@ void imlib_draw_image(image_t *dst_img,
 
         // Work top to bottom transposing as many lines at a time in a chunk of the image.
         for (int i = t_roi.y; i < t_roi.h; i += line_num) {
+            imlib_poll_events();
             line_num = IM_MIN(line_num, (t_roi.h - i));
 
             // Make an image that is a slice of the input image.
@@ -5446,6 +5448,7 @@ void imlib_flood_fill(image_t *img, int x, int y,
 
         if (mask) {
             for (int y = 0, yy = out.h; y < yy; y++) {
+                imlib_poll_events();
                 uint32_t *row_ptr = IMAGE_COMPUTE_BINARY_PIXEL_ROW_PTR(&out, y);
                 for (int x = 0, xx = out.w; x < xx; x++) {
                     if (image_get_mask_pixel(mask, x, y)) {
@@ -5488,6 +5491,7 @@ void imlib_flood_fill(image_t *img, int x, int y,
         switch (img->pixfmt) {
             case PIXFORMAT_BINARY: {
                 for (int y = 0, yy = out.h; y < yy; y++) {
+                    imlib_poll_events();
                     uint32_t *row_ptr = IMAGE_COMPUTE_BINARY_PIXEL_ROW_PTR(img, y);
                     uint32_t *out_row_ptr = IMAGE_COMPUTE_BINARY_PIXEL_ROW_PTR(&out, y);
                     for (int x = 0, xx = out.w; x < xx; x++) {
@@ -5502,6 +5506,7 @@ void imlib_flood_fill(image_t *img, int x, int y,
             }
             case PIXFORMAT_GRAYSCALE: {
                 for (int y = 0, yy = out.h; y < yy; y++) {
+                    imlib_poll_events();
                     uint8_t *row_ptr = IMAGE_COMPUTE_GRAYSCALE_PIXEL_ROW_PTR(img, y);
                     uint32_t *out_row_ptr = IMAGE_COMPUTE_BINARY_PIXEL_ROW_PTR(&out, y);
                     for (int x = 0, xx = out.w; x < xx; x++) {
@@ -5516,6 +5521,7 @@ void imlib_flood_fill(image_t *img, int x, int y,
             }
             case PIXFORMAT_RGB565: {
                 for (int y = 0, yy = out.h; y < yy; y++) {
+                    imlib_poll_events();
                     uint16_t *row_ptr = IMAGE_COMPUTE_RGB565_PIXEL_ROW_PTR(img, y);
                     uint32_t *out_row_ptr = IMAGE_COMPUTE_BINARY_PIXEL_ROW_PTR(&out, y);
                     for (int x = 0, xx = out.w; x < xx; x++) {
