@@ -37,6 +37,8 @@
 
 #include "../protocol/omv_protocol.h"
 #include "shared/runtime/softtimer.h"
+#include "umalloc.h"
+#include "cmsis_compiler.h"
 
 /***************************************************************************
 * Python Channel Delegates
@@ -63,14 +65,27 @@ static mp_obj_t py_channel_call(mp_obj_t obj, qstr method_name, size_t n_args, c
         dest[i + 2] = args[i];
     }
 
+    // Lock uma_collect so caught exceptions in the VM don't free UMA
+    // blocks that C callers above us still own (restored after the call).
+    uma_collect_lock();
+
+    // Clear vm_abort so the Python method runs to completion even if
+    // the protocol has scheduled an abort (restored after the call).
+    bool vm_abort = MP_STATE_VM(vm_abort);
+    MP_STATE_VM(vm_abort) = false;
+
     // Call the method with exception handling
     nlr_buf_t nlr;
     if (nlr_push(&nlr) == 0) {
         mp_obj_t result = mp_call_method_n_kw(n_args, 0, dest);
         nlr_pop();
+        uma_collect_unlock();
+        MP_STATE_VM(vm_abort) = vm_abort;
         return result;
     } else {
         // Exception occurred
+        uma_collect_unlock();
+        MP_STATE_VM(vm_abort) = vm_abort;
         return MP_OBJ_NULL;
     }
 }
@@ -298,6 +313,12 @@ MP_DEFINE_CONST_OBJ_TYPE(
 * Protocol Module
 ***************************************************************************/
 static void py_protocol_task(mp_sched_node_t *node) {
+    // Guard against re-entrancy from PendSV. lwip is dispatched from
+    // PendSV which can preempt the protocol task mid-call, leading to
+    // re-entrancy (e.g. lwip -> handle_pending -> protocol -> lwip).
+    if (__get_IPSR() != 0) {
+        return;
+    }
     omv_protocol_task();
 }
 
@@ -373,12 +394,12 @@ static mp_obj_t py_protocol_init(size_t n_args, const mp_obj_t *pos_args, mp_map
 
     // Start periodic timer if timer_ms > 0
     if (timer_ms > 0) {
-        // Soft timer for periodic protocol task scheduling
-        static soft_timer_entry_t protocol_soft_timer;
-
-        soft_timer_static_init(&protocol_soft_timer, SOFT_TIMER_MODE_PERIODIC,
+        soft_timer_entry_t *timer = m_new_obj(soft_timer_entry_t);
+        soft_timer_static_init(timer, SOFT_TIMER_MODE_PERIODIC,
                                timer_ms, py_protocol_soft_timer_callback);
-        soft_timer_insert(&protocol_soft_timer, timer_ms);
+        timer->flags = SOFT_TIMER_FLAG_GC_ALLOCATED;
+        soft_timer_insert(timer, timer_ms);
+        MP_STATE_PORT(protocol_soft_timer) = MP_OBJ_FROM_PTR(timer);
     }
 
     return mp_const_none;
@@ -486,7 +507,8 @@ const mp_obj_module_t protocol_module = {
 // Register the module
 MP_REGISTER_EXTENSIBLE_MODULE(MP_QSTR_protocol, protocol_module);
 
-// Register root pointer for dynamic protocol channels
+// Register root pointers for dynamic protocol channels and soft timer
+MP_REGISTER_ROOT_POINTER(mp_obj_t protocol_soft_timer);
 MP_REGISTER_ROOT_POINTER(mp_obj_t protocol_channels[OMV_PROTOCOL_MAX_CHANNELS]);
 
 #endif // MICROPY_PY_PROTOCOL

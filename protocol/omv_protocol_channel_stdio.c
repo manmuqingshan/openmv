@@ -44,6 +44,7 @@
 typedef struct {
     vstr_t vstrbuf;
     bool script_running;
+    bool notified;
     ringbuf_t ringbuf;
     uint8_t rawbuf[OMV_PROTOCOL_STDIO_BUFFER_SIZE];
 } stdio_channel_context_t;
@@ -94,7 +95,9 @@ static int stdio_channel_read(const omv_protocol_channel_t *channel,
     stdio_channel_context_t *ctx = channel->priv;
 
     size = OMV_MIN(size, ringbuf_avail(&ctx->ringbuf));
-    return !ringbuf_get_bytes(&ctx->ringbuf, data, size) ? size : -1;
+    int ret = !ringbuf_get_bytes(&ctx->ringbuf, data, size) ? size : -1;
+    ctx->notified = false;
+    return ret;
 }
 
 static int stdio_channel_write(const omv_protocol_channel_t *channel,
@@ -193,13 +196,17 @@ mp_uint_t __wrap_mp_hal_stdout_tx_strn(const char *str, mp_uint_t len) {
         // Not enough free space, reset and keep the tail of the string.
         size_t cap = rb->size - 1;
         size_t offset = (len > cap) ? len - cap : 0;
+
         rb->iget = 0;
         rb->iput = 0;
         ringbuf_memcpy_put_internal(rb, (const uint8_t *) str + offset, len - offset);
+        ctx->notified = false;
     }
 
-    // Notify the host when the buffer is above 25% full.
-    if (ringbuf_avail(rb) > (rb->size / 4)) {
+    // Notify the host once when the buffer crosses the 25% threshold.
+    // Cleared when the host reads, or when the ringbufer overflows.
+    if (!ctx->notified && ringbuf_avail(rb) > (rb->size / 4)) {
+        ctx->notified = true;
         omv_protocol_send_event(OMV_PROTOCOL_CHANNEL_ID_STDOUT, OMV_PROTOCOL_EVENT_NOTIFY, false);
     }
 

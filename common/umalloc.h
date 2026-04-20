@@ -87,6 +87,8 @@ void *uma_calloc(size_t size, uint32_t flags);
 void *uma_realloc(void *ptr, size_t size, uint32_t flags);
 void  uma_free(void *ptr);
 void  uma_collect(void);
+void  uma_collect_lock(void);
+void  uma_collect_unlock(void);
 size_t uma_avail(uint32_t flags);
 void uma_transient_acquire(void);
 void uma_transient_release(void);

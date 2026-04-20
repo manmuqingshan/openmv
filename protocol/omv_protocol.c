@@ -382,8 +382,9 @@ int omv_protocol_send_packet(uint8_t opcode, uint8_t channel_id, size_t size, co
                 sent += transport->write(transport, 0, 4, crc32_bytes);
             }
 
-            if (transport->flush) {
-                transport->flush(transport);
+            if (transport->flush && transport->flush(transport) < 0) {
+                ctx.stats.transport_errors++;
+                return -1;
             }
 
             if (sent != OMV_PROTOCOL_HEADER_SIZE + frag_len + (frag_len > 0 ? 4 : 0)) {
@@ -756,7 +757,7 @@ void omv_protocol_process(const omv_protocol_packet_t *packet) {
             omv_protocol_mem_stats_t *resp = (omv_protocol_mem_stats_t *) resp_buf;
 
             // GC stats
-            gc_info(&gc);
+            gc_info_fast(&gc);
 
             resp->count = count;
             resp->entries[0].type = OMV_PROTOCOL_MEM_TYPE_GC;
