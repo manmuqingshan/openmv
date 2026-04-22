@@ -43,7 +43,8 @@ class UartTransport:
 
 
 if __name__ == "__main__":
-    MAX_PAYLOAD = 4096 - 10 - 2
+    # Buffer(4096) - Header(10) - CRC(4) = 4082
+    MAX_PAYLOAD = 4096 - 10 - 4
 
     # Initialize and configure the protocol
     protocol.init(
@@ -51,7 +52,6 @@ if __name__ == "__main__":
         seq=True,               # Enable sequence checking
         ack=True,               # Wait for CKs
         events=True,            # Enable async-events
-        soft_reboot=True,       # Enable soft-reboots
         max_payload=MAX_PAYLOAD,  # Max packet payload
         rtx_retries=3,          # Retransmission retry count
         rtx_timeout_ms=500,     # Timeout before retransmission (doubled after each try)
