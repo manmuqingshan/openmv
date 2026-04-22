@@ -130,6 +130,16 @@ PROVIDE(__stack = __StackTop);
 } >OMV_CORE1_MEMORY
 #endif
 
+/* lwIP memory pools */
+#if defined(OMV_LWIP_MEMORY)
+.lwip_memory (NOLOAD) : ALIGN(4)
+{
+  *(.lwip)
+  *(.lwip*)
+  . = ALIGN(4);
+} >OMV_LWIP_MEMORY
+#endif
+
 /* Misc DMA buffers section */
 .dma.memory0 (NOLOAD) : ALIGN(32)
 {
