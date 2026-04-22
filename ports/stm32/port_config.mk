@@ -186,6 +186,11 @@ endif
 
 $(ROMFS_IMAGE): $(ROMFS_CONFIG) | $(FIRMWARE) $(BOOTLOADER)
 	$(ECHO) "GEN romfs image"
+	$(PYTHON) $(TOOLS_DIR)/$(MKROMFS) \
+        --top-dir $(TOP_DIR) \
+        --out-dir $(FW_DIR) \
+        --build-dir $(BUILD)/lib/models \
+        $(STEDGEAI_ARGS) --config $(ROMFS_CONFIG)
 	touch $@
 
 deploy: $(ROMFS_IMAGE)
