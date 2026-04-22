@@ -441,6 +441,13 @@ int omv_protocol_task(void) {
     size_t available = 0;
     const omv_protocol_channel_t *transport = omv_protocol_find_transport();
 
+    // Guard against re-entrancy from PendSV. lwip is dispatched from
+    // PendSV which can preempt the protocol task mid-call, leading to
+    // re-entrancy (e.g. lwip -> handle_pending -> protocol -> lwip).
+    if (__get_IPSR() != 0) {
+        return -1;
+    }
+
     if (!transport || !transport->is_active(transport)) {
         return -1;
     }
