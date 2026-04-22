@@ -329,7 +329,6 @@ typedef struct {
     bool event_enabled;
     uint16_t max_payload;
     // Transport configuration (local only)
-    bool soft_reboot;
     uint16_t rtx_retries;
     uint16_t rtx_timeout_ms;
     uint16_t lock_intval_ms;

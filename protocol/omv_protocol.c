@@ -87,7 +87,6 @@ int omv_protocol_init_default() {
         .ack_enabled = true,
         .event_enabled = true,
         .max_payload = OMV_PROTOCOL_MAX_PAYLOAD_SIZE,
-        .soft_reboot = true,
         .rtx_retries = OMV_PROTOCOL_DEF_RTX_RETRIES,
         .rtx_timeout_ms = OMV_PROTOCOL_DEF_RTX_TIMEOUT_MS,
         .lock_intval_ms = OMV_PROTOCOL_MIN_LOCK_INTERVAL_MS,
@@ -167,12 +166,7 @@ bool omv_protocol_exec_script(void) {
         omv_protocol_send_event(0, OMV_PROTOCOL_EVENT_SOFT_REBOOT, false);
     }
 
-    if (result) {
-        // A script was executed - return true if the transport allows soft-reboot
-        return ctx.config.soft_reboot;
-    }
-
-    return false;
+    return result;
 }
 
 int omv_protocol_register_channel(const omv_protocol_channel_t *channel) {

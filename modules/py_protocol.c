@@ -346,7 +346,6 @@ static mp_obj_t py_protocol_init(size_t n_args, const mp_obj_t *pos_args, mp_map
         { MP_QSTR_ack, MP_ARG_BOOL, {.u_bool = true} },
         { MP_QSTR_events, MP_ARG_BOOL, {.u_bool = true} },
         { MP_QSTR_max_payload, MP_ARG_INT, {.u_int = OMV_PROTOCOL_MAX_PAYLOAD_SIZE} },
-        { MP_QSTR_soft_reboot, MP_ARG_BOOL, {.u_bool = false} },
         { MP_QSTR_rtx_retries, MP_ARG_INT, {.u_int = OMV_PROTOCOL_DEF_RTX_RETRIES} },
         { MP_QSTR_rtx_timeout_ms, MP_ARG_INT, {.u_int = OMV_PROTOCOL_DEF_RTX_TIMEOUT_MS} },
         { MP_QSTR_lock_interval_ms, MP_ARG_INT, {.u_int = OMV_PROTOCOL_MIN_LOCK_INTERVAL_MS} },
@@ -363,13 +362,12 @@ static mp_obj_t py_protocol_init(size_t n_args, const mp_obj_t *pos_args, mp_map
         .ack_enabled = args[2].u_bool,
         .event_enabled = args[3].u_bool,
         .max_payload = args[4].u_int,
-        .soft_reboot = args[5].u_bool,
-        .rtx_retries = args[6].u_int,
-        .rtx_timeout_ms = args[7].u_int,
-        .lock_intval_ms = args[8].u_int,
+        .rtx_retries = args[5].u_int,
+        .rtx_timeout_ms = args[6].u_int,
+        .lock_intval_ms = args[7].u_int,
     };
 
-    uint32_t timer_ms = args[9].u_int;
+    uint32_t timer_ms = args[8].u_int;
 
     if (omv_protocol_init(&config)) {
         mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("Failed to initialize protocol"));
