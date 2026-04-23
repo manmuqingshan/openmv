@@ -110,7 +110,7 @@ if __name__ == "__main__":
     # MTU(1500) - IP(20) - UDP(8) - Header(10) - CRC(4) = 1458
     MAX_PAYLOAD = 1400
 
-    # Connect to WiFi first (before protocol.init starts the timer)
+    # Connect to WiFi first (before protocol.init starts the poll timer)
     network.hostname(HOSTNAME)
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
@@ -133,7 +133,7 @@ if __name__ == "__main__":
         rtx_retries=3,  # Retransmission retry count
         rtx_timeout_ms=100,  # Timeout before retransmission (WiFi RTT ~5ms)
         lock_interval_ms=10,  # Minimum locking interval
-        timer_ms=10,  # Schedules the protocol task every 10ms
+        poll_ms=10,  # Schedules the protocol task every 10ms
     )
 
     # Register the network transport

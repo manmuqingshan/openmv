@@ -56,7 +56,7 @@ if __name__ == "__main__":
         rtx_retries=3,          # Retransmission retry count
         rtx_timeout_ms=500,     # Timeout before retransmission (doubled after each try)
         lock_interval_ms=10,    # Minimum locking interval
-        timer_ms=10,            # Schedules the protocol task every 10ms
+        poll_ms=10,             # Schedules the protocol task every 10ms
     )
 
     # Register the transport
