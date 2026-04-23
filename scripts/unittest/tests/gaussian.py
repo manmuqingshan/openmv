@@ -8,9 +8,9 @@ def unittest(data_path, temp_path):
     for y in range(50):
         for x in range(50):
             if x < 25:
-                img.set_pixel(x, y, 0)
+                img.set_pixel((x, y), 0)
             else:
-                img.set_pixel(x, y, 255)
+                img.set_pixel((x, y), 255)
 
     # Get stats before filtering
     stats_before = img.get_statistics()
@@ -35,8 +35,8 @@ def unittest(data_path, temp_path):
 
     # Edge pixels should no longer be pure 0 or 255
     # Check some middle pixels near the edge (x=24, x=25)
-    pixel_24 = img.get_pixel(24, 25)
-    pixel_25 = img.get_pixel(25, 25)
+    pixel_24 = img.get_pixel((24, 25))
+    pixel_25 = img.get_pixel((25, 25))
 
     # These should be blurred (not 0 or 255)
     if pixel_24 == 0 or pixel_24 == 255 or pixel_25 == 0 or pixel_25 == 255:

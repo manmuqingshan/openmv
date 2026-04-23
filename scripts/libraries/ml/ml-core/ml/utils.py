@@ -183,16 +183,13 @@ def draw_predictions(
             w = int(w * image_w) - x
             h = int(h * image_h) - y
 
-        image.draw_rectangle(x, y, w, h, color=box_color)
+        image.draw_rectangle((x, y, w, h), color=box_color)
         image.draw_rectangle(
-            x,
-            y - font_height,
-            len(label) * font_width,
-            font_height,
+            (x, y - font_height, len(label) * font_width, font_height),
             fill=True,
             color=box_color,
         )
-        image.draw_string(x, y - font_height, label.upper(), text_color)
+        image.draw_string((x, y - font_height), label.upper(), text_color)
 
 
 def draw_keypoints(
@@ -206,10 +203,10 @@ def draw_keypoints(
 
     if radius > 0:
         for kp in keypoints:
-            image.draw_circle(int(kp[0]), int(kp[1]), radius, color=color, thickness=thickness, fill=fill)
+            image.draw_circle((int(kp[0]), int(kp[1]), radius), color=color, thickness=thickness, fill=fill)
     elif radius == 0:
         for kp in keypoints:
-            image.set_pixel(int(kp[0]), int(kp[1]), color)
+            image.set_pixel((int(kp[0]), int(kp[1])), color)
 
 
 def draw_skeleton(
@@ -226,6 +223,7 @@ def draw_skeleton(
     draw_keypoints(image, keypoints, radius=kp_radius, color=kp_color, thickness=kp_thickness, fill=kp_fill)
 
     for line in lines:
-        image.draw_line(int(keypoints[line[0]][0]), int(keypoints[line[0]][1]),
-                        int(keypoints[line[1]][0]), int(keypoints[line[1]][1]),
-                        color=line_color, thickness=line_thickness)
+        image.draw_line(
+            (int(keypoints[line[0]][0]), int(keypoints[line[0]][1]),
+             int(keypoints[line[1]][0]), int(keypoints[line[1]][1])),
+            color=line_color, thickness=line_thickness)

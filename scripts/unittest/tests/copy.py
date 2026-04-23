@@ -7,7 +7,7 @@ def unittest(data_path, temp_path):
     # Fill with value 100
     for y in range(50):
         for x in range(50):
-            img.set_pixel(x, y, 100)
+            img.set_pixel((x, y), 100)
 
     # Create a copy
     img_copy = img.copy()
@@ -23,7 +23,7 @@ def unittest(data_path, temp_path):
     # Modify original image
     for y in range(50):
         for x in range(50):
-            img.set_pixel(x, y, 200)
+            img.set_pixel((x, y), 200)
 
     # Verify copy is independent (still has value 100)
     stats_copy = img_copy.get_statistics()

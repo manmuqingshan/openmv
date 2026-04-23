@@ -7,7 +7,7 @@ def unittest(data_path, temp_path):
     # Fill with low contrast pattern
     for y in range(50):
         for x in range(50):
-            img.set_pixel(x, y, 100 + ((x + y) % 50))
+            img.set_pixel((x, y), 100 + ((x + y) % 50))
 
     # Get original stats
     stats_orig = img.get_statistics()

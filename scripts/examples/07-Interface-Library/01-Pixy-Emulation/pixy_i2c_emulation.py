@@ -380,7 +380,7 @@ while True:
             if sig_map[sign] <= max_blocks_per_signature:
                 dat_buf += to_object_block_format(blob, bits)
                 img.draw_rectangle(blob.rect())
-                img.draw_cross(blob.cx(), blob.cy())
+                img.draw_cross((blob.cx(), blob.cy()))
 
             if dac and not first_b:
                 x_scale = 255 / (img.width() - 1)

@@ -7,7 +7,7 @@ def unittest(data_path, temp_path):
     # Fill with known values
     for y in range(50):
         for x in range(50):
-            img.set_pixel(x, y, 100)
+            img.set_pixel((x, y), 100)
 
     # Invert the image
     img.invert()
@@ -15,7 +15,7 @@ def unittest(data_path, temp_path):
     # Verify all pixels are inverted (255 - 100 = 155)
     for y in range(50):
         for x in range(50):
-            pixel = img.get_pixel(x, y)
+            pixel = img.get_pixel((x, y))
             if pixel != 155:
                 return False
 
@@ -23,7 +23,7 @@ def unittest(data_path, temp_path):
     img2 = image.Image(50, 50, image.GRAYSCALE)
     for y in range(50):
         for x in range(50):
-            img2.set_pixel(x, y, 200)
+            img2.set_pixel((x, y), 200)
 
     img2.invert()
 

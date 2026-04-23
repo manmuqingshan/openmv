@@ -7,7 +7,7 @@ def unittest(data_path, temp_path):
     # Fill with values 0-99 repeated
     for y in range(100):
         for x in range(100):
-            img.set_pixel(x, y, (x + y) % 100)
+            img.set_pixel((x, y), (x + y) % 100)
 
     # Get histogram
     hist = img.get_histogram()

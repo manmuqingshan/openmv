@@ -44,7 +44,7 @@ while True:
             img.draw_line(blob.minor_axis_line(), color=(0, 0, 255))
         # These values are stable all the time.
         img.draw_rectangle(blob.rect())
-        img.draw_cross(blob.cx(), blob.cy())
+        img.draw_cross((blob.cx(), blob.cy()))
         # Note - the blob rotation is unique to 0-180 only.
         img.draw_keypoints(
             [(blob.cx(), blob.cy(), int(math.degrees(blob.rotation())))], size=20

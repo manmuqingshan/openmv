@@ -45,18 +45,18 @@ while True:
     ):
         if blob.code() == 3:  # r/g code
             img.draw_rectangle(blob.rect())
-            img.draw_cross(blob.cx(), blob.cy())
-            img.draw_string(blob.x() + 2, blob.y() + 2, "r/g")
+            img.draw_cross((blob.cx(), blob.cy()))
+            img.draw_string((blob.x() + 2, blob.y() + 2), "r/g")
         if blob.code() == 5:  # r/b code
             img.draw_rectangle(blob.rect())
-            img.draw_cross(blob.cx(), blob.cy())
-            img.draw_string(blob.x() + 2, blob.y() + 2, "r/b")
+            img.draw_cross((blob.cx(), blob.cy()))
+            img.draw_string((blob.x() + 2, blob.y() + 2), "r/b")
         if blob.code() == 6:  # g/b code
             img.draw_rectangle(blob.rect())
-            img.draw_cross(blob.cx(), blob.cy())
-            img.draw_string(blob.x() + 2, blob.y() + 2, "g/b")
+            img.draw_cross((blob.cx(), blob.cy()))
+            img.draw_string((blob.x() + 2, blob.y() + 2), "g/b")
         if blob.code() == 7:  # r/g/b code
             img.draw_rectangle(blob.rect())
-            img.draw_cross(blob.cx(), blob.cy())
-            img.draw_string(blob.x() + 2, blob.y() + 2, "r/g/b")
+            img.draw_cross((blob.cx(), blob.cy()))
+            img.draw_string((blob.x() + 2, blob.y() + 2), "r/g/b")
     print(clock.fps())

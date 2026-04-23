@@ -54,11 +54,11 @@ while True:
                 # If we have at least n "good matches"
                 # Draw bounding rectangle and cross.
                 img.draw_rectangle(match.rect())
-                img.draw_cross(match.cx(), match.cy(), size=10)
+                img.draw_cross((match.cx(), match.cy()), size=10)
 
             print(kpts2, "matched:%d dt:%d" % (match.count(), match.theta()))
             # NOTE: uncomment if you want to draw the keypoints
             # img.draw_keypoints(kpts2, size=KEYPOINTS_SIZE, matched=True)
 
     # Draw FPS
-    img.draw_string(0, 0, "FPS:%.2f" % (clock.fps()))
+    img.draw_string((0, 0), "FPS:%.2f" % (clock.fps()))

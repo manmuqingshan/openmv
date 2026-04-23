@@ -7,7 +7,7 @@ def unittest(data_path, temp_path):
     # Fill with gradient
     for y in range(100):
         for x in range(100):
-            img.set_pixel(x, y, (x + y) % 256)
+            img.set_pixel((x, y), (x + y) % 256)
 
     # Get statistics for ROI (region of interest)
     roi = (25, 25, 50, 50)  # x, y, w, h

@@ -12,7 +12,7 @@ def unittest(data_path, temp_path):
             g = (y * 4) & 0xFC
             b = ((x + y) * 8) & 0xF8
             color = ((r << 8) & 0xF800) | ((g << 3) & 0x07E0) | (b >> 3)
-            img1.set_pixel(x, y, color)
+            img1.set_pixel((x, y), color)
 
     img2 = image.Image(40, 40, image.RGB565)
     for y in range(40):
@@ -21,14 +21,14 @@ def unittest(data_path, temp_path):
             g = ((40 - y) * 4) & 0xFC
             b = ((x ^ y) * 8) & 0xF8
             color = ((r << 8) & 0xF800) | ((g << 3) & 0x07E0) | (b >> 3)
-            img2.set_pixel(x, y, color)
+            img2.set_pixel((x, y), color)
 
     img3 = image.Image(40, 40, image.RGB565)
     for y in range(40):
         for x in range(40):
             val = ((x + y) % 2) * 31
             color = ((val << 11) & 0xF800) | ((val << 5) & 0x07E0) | val
-            img3.set_pixel(x, y, color)
+            img3.set_pixel((x, y), color)
 
     # Write images to file
     stream = image.ImageIO(test_file, "w")
@@ -105,12 +105,12 @@ def unittest(data_path, temp_path):
     gray1 = image.Image(30, 30, image.GRAYSCALE)
     for y in range(30):
         for x in range(30):
-            gray1.set_pixel(x, y, (x * y) % 256)
+            gray1.set_pixel((x, y), (x * y) % 256)
 
     gray2 = image.Image(30, 30, image.GRAYSCALE)
     for y in range(30):
         for x in range(30):
-            gray2.set_pixel(x, y, (x + y) % 256)
+            gray2.set_pixel((x, y), (x + y) % 256)
 
     # Write and read grayscale
     gray_stream = image.ImageIO(gray_file, "w")

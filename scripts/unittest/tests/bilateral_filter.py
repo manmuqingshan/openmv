@@ -8,9 +8,9 @@ def unittest(data_path, temp_path):
     for y in range(50):
         for x in range(50):
             if x < 25:
-                img.set_pixel(x, y, 50)
+                img.set_pixel((x, y), 50)
             else:
-                img.set_pixel(x, y, 200)
+                img.set_pixel((x, y), 200)
 
     # Get original stats
     stats_orig = img.get_statistics()

@@ -7,12 +7,12 @@ def unittest(data_path, temp_path):
     # Fill with black
     for y in range(50):
         for x in range(50):
-            img.set_pixel(x, y, 0)
+            img.set_pixel((x, y), 0)
 
     # Create white square in center (20x20)
     for y in range(15, 35):
         for x in range(15, 35):
-            img.set_pixel(x, y, 255)
+            img.set_pixel((x, y), 255)
 
     # Test erode - should shrink white region
     img_erode = img.copy()

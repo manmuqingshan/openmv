@@ -48,7 +48,7 @@ while True:
 
     # Draw min and max distance.
     img.draw_string(
-        0, 0, f"Distance min: {int(dmin):4d}mm max: {int(dmax):4d}mm", color=(255, 0, 0), mono_space=False
+        (0, 0), f"Distance min: {int(dmin):4d}mm max: {int(dmax):4d}mm", color=(255, 0, 0), mono_space=False
     )
 
     # Print FPS.
