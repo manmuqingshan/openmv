@@ -40,11 +40,15 @@
 #define OMV_PROTOCOL_STDIO_BUFFER_SIZE  (1024)
 #endif
 
+#ifndef OMV_PROTOCOL_STDIO_FLUSH_MS
+#define OMV_PROTOCOL_STDIO_FLUSH_MS     (50)
+#endif
 
 typedef struct {
     vstr_t vstrbuf;
     bool script_running;
     bool notified;
+    uint32_t last_notify_ms;
     ringbuf_t ringbuf;
     uint8_t rawbuf[OMV_PROTOCOL_STDIO_BUFFER_SIZE];
 } stdio_channel_context_t;
@@ -60,6 +64,7 @@ static int stdin_channel_init(const omv_protocol_channel_t *channel) {
 
 static int stdout_channel_init(const omv_protocol_channel_t *channel) {
     stdio_channel_context_t *ctx = channel->priv;
+    ctx->last_notify_ms = 0;
 
     // Initialize ring buffer once to keep output from previous runs.
     if (ctx->ringbuf.buf == NULL) {
@@ -203,10 +208,11 @@ mp_uint_t __wrap_mp_hal_stdout_tx_strn(const char *str, mp_uint_t len) {
         ctx->notified = false;
     }
 
-    // Notify the host once when the buffer crosses the 25% threshold.
-    // Cleared when the host reads, or when the ringbufer overflows.
-    if (!ctx->notified && ringbuf_avail(rb) > (rb->size / 4)) {
+    // Notify the host once when the buffer crosses the 50% threshold.
+    // Cleared when the host reads, or when the ringbuffer overflows.
+    if (!ctx->notified && ringbuf_avail(rb) > (rb->size / 2)) {
         ctx->notified = true;
+        ctx->last_notify_ms = mp_hal_ticks_ms();
         omv_protocol_send_event(OMV_PROTOCOL_CHANNEL_ID_STDOUT, OMV_PROTOCOL_EVENT_NOTIFY, false);
     }
 
@@ -225,6 +231,15 @@ const omv_protocol_channel_t omv_stdin_channel = {
     .exec = stdin_channel_exec
 };
 
+static void stdout_channel_tick(const omv_protocol_channel_t *channel) {
+    stdio_channel_context_t *ctx = channel->priv;
+    if (ringbuf_avail(&ctx->ringbuf)
+        && (mp_hal_ticks_ms() - ctx->last_notify_ms) >= OMV_PROTOCOL_STDIO_FLUSH_MS) {
+        ctx->last_notify_ms = mp_hal_ticks_ms();
+        omv_protocol_send_event(OMV_PROTOCOL_CHANNEL_ID_STDOUT, OMV_PROTOCOL_EVENT_NOTIFY, false);
+    }
+}
+
 const omv_protocol_channel_t omv_stdout_channel = {
     .priv = &stdio_channel_ctx,
     .id = OMV_PROTOCOL_CHANNEL_ID_STDOUT,
@@ -234,4 +249,5 @@ const omv_protocol_channel_t omv_stdout_channel = {
     .poll = stdout_channel_poll,
     .size = stdio_channel_size,
     .read = stdio_channel_read,
+    .tick = stdout_channel_tick,
 };

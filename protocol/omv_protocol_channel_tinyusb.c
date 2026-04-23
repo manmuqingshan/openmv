@@ -109,8 +109,8 @@ static int usb_channel_write(const omv_protocol_channel_t *channel, uint32_t off
 
 static void usb_channel_task(mp_sched_node_t *node) {
     tud_task_ext(0, false);
-    if (omv_protocol_is_active()) {
-        omv_protocol_task();
+    if (usb_channel_active) {
+        omv_protocol_poll();
     }
 }
 
@@ -118,7 +118,7 @@ static void usb_channel_task(mp_sched_node_t *node) {
 void tud_cdc_rx_cb(uint8_t itf) {
     extern void __mp_tud_cdc_rx_cb(uint8_t itf);
 
-    if (!omv_protocol_is_active()) {
+    if (!usb_channel_active) {
         __mp_tud_cdc_rx_cb(itf);
     }
 }
