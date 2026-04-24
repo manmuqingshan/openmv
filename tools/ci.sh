@@ -7,7 +7,7 @@ SDK_DIR="${HOME}/openmv-sdk-${SDK_VERSION}"
 SDK_BASE_URL="https://download.openmv.io/sdk"
 SDK_OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 SDK_ARCH="$(uname -m)"
-SDK_TARBALL="openmv-sdk-${SDK_VERSION}-${SDK_OS}-${SDK_ARCH}.tar.gz"
+SDK_TARBALL="openmv-sdk-${SDK_VERSION}-${SDK_OS}-${SDK_ARCH}.tar.xz"
 SDK_URL="${SDK_BASE_URL}/${SDK_TARBALL}"
 
 export SDK_DIR
@@ -37,7 +37,7 @@ ci_install_sdk() {
         echo "Checksum verification failed!"; return 1
     }
 
-    tar --strip-components=1 -xzf "$tmpfile" -C "${SDK_DIR}" || {
+    tar --strip-components=1 -xf "$tmpfile" -C "${SDK_DIR}" || {
         echo "Extraction failed!"; return 1
     }
 
