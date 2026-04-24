@@ -167,6 +167,9 @@ soft_reset:
     mod_network_init();
     #endif
 
+    // Execute _boot.py.
+    pyexec_frozen_module("_boot.py", false);
+
     // Initialize TinyUSB after the filesystem is mounted.
     #if MICROPY_HW_ENABLE_USBDEV
     if (!tusb_inited()) {
@@ -178,9 +181,6 @@ soft_reset:
     // Initialize OpenMV protocol
     omv_protocol_init_default();
     #endif
-
-    // Execute _boot.py.
-    pyexec_frozen_module("_boot.py", false);
 
     // Run boot.py every reset and main.py on first soft-reset
     if (pyexec_file_if_exists("boot.py") && first_soft_reset) {
@@ -216,6 +216,7 @@ soft_reset_exit:
 #endif
     mp_hal_set_interrupt_char(-1);
     mp_printf(MP_PYTHON_PRINTER, "MPY: soft reboot\n");
+    omv_protocol_deinit();
     #if MICROPY_PY_CSI
     omv_csi_abort_all();
     #endif
@@ -237,7 +238,6 @@ soft_reset_exit:
     machine_pwm_deinit_all();
     machine_pin_irq_deinit();
     imlib_deinit();
-    omv_protocol_deinit();
     soft_timer_deinit();
     dma_deinit_all();
     gc_sweep_all();
