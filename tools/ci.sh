@@ -37,9 +37,15 @@ ci_install_sdk() {
         echo "Checksum verification failed!"; return 1
     }
 
-    tar --strip-components=1 -xf "$tmpfile" -C "${SDK_DIR}" || {
-        echo "Extraction failed!"; return 1
-    }
+    if command -v pv &>/dev/null; then
+        pv "$tmpfile" | tar --strip-components=1 -xf - -C "${SDK_DIR}" || {
+            echo "Extraction failed!"; return 1
+        }
+    else
+        tar --strip-components=1 -xf "$tmpfile" -C "${SDK_DIR}" || {
+            echo "Extraction failed!"; return 1
+        }
+    fi
 
     echo "OpenMV SDK ${SDK_VERSION} installed successfully."
 }
