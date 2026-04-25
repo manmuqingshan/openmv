@@ -66,7 +66,7 @@ def vela_compile(model_path, build_dir, vela_args):
     os.rename(f"{build_dir}/{model}_vela.tflite", f"{build_dir}/{model}.tflite")
 
 def stedge_compile(model_path, build_dir, profile, stedge_args=None):
-    core_dir = os.environ["STEDGEAI_CORE_DIR"]
+    core_dir = os.environ["STEDGEAI_CORE"]
     config = os.path.realpath("lib/stai/scripts/neuralart.json")
     model_name = os.path.basename(os.path.splitext(model_path)[0])
     model_ext = os.path.splitext(model_path)[1]
