@@ -34,8 +34,6 @@ STLDR_DIR = $(SDK_DIR)/stcubeprog/bin/ExternalLoader/
 
 ifeq ($(MCU_SERIES),$(filter $(MCU_SERIES),n6))
 STEDGEAI_ARGS ?= --stedge-args "--target stm32n6"
-STEDGEAI_CORE_DIR := $(wildcard $(SDK_DIR)/stedgeai/[0-9]*)
-export STEDGEAI_CORE_DIR
 endif
 
 ROMFS_IMAGE := $(FW_DIR)/romfs.stamp
