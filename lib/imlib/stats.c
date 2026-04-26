@@ -871,6 +871,18 @@ static int get_median_l(long long *array, long long array_sum, int array_len) {
     return array_len - 1;
 }
 
+static bool grow_points(point_t **points, size_t *points_max) {
+    size_t new_max = *points_max ? (*points_max * 2) : 256;
+    point_t *new_points = (point_t *) uma_realloc(*points, new_max * sizeof(point_t),
+                                                  UMA_DTCM | UMA_MAYBE);
+    if (!new_points) {
+        return false;
+    }
+    *points = new_points;
+    *points_max = new_max;
+    return true;
+}
+
 bool imlib_get_regression(find_lines_list_lnk_data_t *out,
                           image_t *ptr,
                           rectangle_t *roi,
@@ -889,10 +901,10 @@ bool imlib_get_regression(find_lines_list_lnk_data_t *out,
     long long *x_delta_histogram = uma_calloc((2 * ptr->w) * sizeof(long long), UMA_DTCM);
     long long *y_delta_histogram = uma_calloc((2 * ptr->h) * sizeof(long long), UMA_DTCM);
 
-    size_t size = uma_avail(0);
-    point_t *points = (point_t *) uma_malloc(size, 0);
-    size_t points_max = size / sizeof(point_t);
+    point_t *points = NULL;
+    size_t points_max = 0;
     size_t points_count = 0;
+    grow_points(&points, &points_max);
 
     if (points_max) {
         int blob_x1 = roi->x + roi->w - 1;
@@ -918,7 +930,7 @@ bool imlib_get_regression(find_lines_list_lnk_data_t *out,
                                 x_histogram[x]++;
                                 y_histogram[y]++;
 
-                                if (points_count < points_max) {
+                                if ((points_count < points_max) || grow_points(&points, &points_max)) {
                                     point_init(&points[points_count], x, y);
                                     points_count += 1;
                                 }
@@ -940,7 +952,7 @@ bool imlib_get_regression(find_lines_list_lnk_data_t *out,
                                 x_histogram[x]++;
                                 y_histogram[y]++;
 
-                                if (points_count < points_max) {
+                                if ((points_count < points_max) || grow_points(&points, &points_max)) {
                                     point_init(&points[points_count], x, y);
                                     points_count += 1;
                                 }
@@ -962,7 +974,7 @@ bool imlib_get_regression(find_lines_list_lnk_data_t *out,
                                 x_histogram[x]++;
                                 y_histogram[y]++;
 
-                                if (points_count < points_max) {
+                                if ((points_count < points_max) || grow_points(&points, &points_max)) {
                                     point_init(&points[points_count], x, y);
                                     points_count += 1;
                                 }
