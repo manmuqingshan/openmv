@@ -2,7 +2,7 @@
 # Copyright (c) 2013-2023 OpenMV LLC. All rights reserved.
 # https://github.com/openmv/openmv/blob/master/LICENSE
 #
-# Robust Linear Regression Example
+# Linear Regression Example
 #
 # This example shows off how to use the get_regression() method on your OpenMV Cam
 # to get the linear regression of a ROI. Using this method you can easily build
@@ -10,11 +10,9 @@
 # but are not actually connected. Use find_blobs() on lines that are nicely
 # connected for better filtering options and control.
 #
-# We're using the robust=True argument for get_regression() in this script which
-# computes the linear regression using a much more robust algorithm... but potentially
-# much slower. The robust algorithm runs in O(N^2) time on the image. So, YOU NEED
-# TO LIMIT THE NUMBER OF PIXELS the robust algorithm works on or it can actually
-# take seconds for the algorithm to give you a result... THRESHOLD VERY CAREFULLY!
+# get_regression() runs in O(N^2) time on the image. So, YOU NEED TO LIMIT THE
+# NUMBER OF PIXELS it works on or it can actually take seconds for the algorithm
+# to give you a result... THRESHOLD VERY CAREFULLY!
 
 import csi
 import time
@@ -38,12 +36,9 @@ while True:
     # find_line_segments(). You have x1(), y1(), x2(), y2(), length(),
     # theta() (rotation in degrees), rho(), and magnitude().
     #
-    # magnitude() represents how well the linear regression worked. It means something
-    # different for the robust linear regression. In general, the larger the value the
-    # better...
-    line = img.get_regression(
-        [(255, 255) if BINARY_VISIBLE else THRESHOLD], robust=True
-    )
+    # magnitude() represents how well the linear regression worked. In general,
+    # the larger the value the better...
+    line = img.get_regression([(255, 255) if BINARY_VISIBLE else THRESHOLD])
 
     if line:
         img.draw_line(line.line(), color=127)

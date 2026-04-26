@@ -4053,7 +4053,7 @@ static MP_DEFINE_CONST_OBJ_TYPE(
 static mp_obj_t py_image_get_regression(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum {
         ARG_thresholds, ARG_invert, ARG_roi, ARG_x_stride, ARG_y_stride,
-        ARG_area_threshold, ARG_pixels_threshold, ARG_robust
+        ARG_area_threshold, ARG_pixels_threshold
     };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_thresholds,       MP_ARG_OBJ | MP_ARG_REQUIRED },
@@ -4063,7 +4063,6 @@ static mp_obj_t py_image_get_regression(size_t n_args, const mp_obj_t *pos_args,
         { MP_QSTR_y_stride,        MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = 1} },
         { MP_QSTR_area_threshold,  MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = 10} },
         { MP_QSTR_pixels_threshold, MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = 10} },
-        { MP_QSTR_robust,           MP_ARG_BOOL | MP_ARG_KW_ONLY, {.u_bool = false} },
     };
     image_t *image = py_helper_arg_to_image(pos_args[0], ARG_IMAGE_MUTABLE);
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
@@ -4083,11 +4082,10 @@ static mp_obj_t py_image_get_regression(size_t n_args, const mp_obj_t *pos_args,
     PY_ASSERT_TRUE_MSG(y_stride > 0, "y_stride must not be zero.");
     unsigned int area_threshold = args[ARG_area_threshold].u_int;
     unsigned int pixels_threshold = args[ARG_pixels_threshold].u_int;
-    bool robust = args[ARG_robust].u_bool;
 
     find_lines_list_lnk_data_t out;
     bool result = imlib_get_regression(&out, image, &roi, x_stride,
-                                       y_stride, &thresholds, invert, area_threshold, pixels_threshold, robust);
+                                       y_stride, &thresholds, invert, area_threshold, pixels_threshold);
     list_free(&thresholds);
     if (!result) {
         return mp_const_none;
