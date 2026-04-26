@@ -10,9 +10,10 @@
 # but are not actually connected. Use find_blobs() on lines that are nicely
 # connected for better filtering options and control.
 #
-# get_regression() runs in O(N^2) time on the image. So, YOU NEED TO LIMIT THE
-# NUMBER OF PIXELS it works on or it can actually take seconds for the algorithm
-# to give you a result... THRESHOLD VERY CAREFULLY!
+# get_regression() runs in O(N^2) time on the image. To keep this manageable it
+# area-scales the source ROI down to a temporary buffer before fitting the line;
+# the buffer size is configurable via the target_size=(w, h) keyword argument
+# (default (80, 60)). Pass a larger tuple to operate at higher resolution.
 
 import csi
 import time
@@ -23,8 +24,8 @@ BINARY_VISIBLE = True  # Binary pass first to see what linear regression is runn
 csi0 = csi.CSI()
 csi0.reset()
 csi0.pixformat(csi.GRAYSCALE)
-csi0.framesize(csi.QQQVGA)  # 80x60 (4,800 pixels) - O(N^2) max = 2,3040,000.
-csi0.snapshot(time=2000)  # WARNING: If you use QQVGA it may take seconds
+csi0.framesize(csi.QVGA)
+csi0.snapshot(time=2000)
 
 clock = time.clock()  # to process a frame sometimes.
 
