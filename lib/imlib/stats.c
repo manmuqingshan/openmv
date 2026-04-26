@@ -1009,6 +1009,25 @@ bool imlib_get_regression(find_lines_list_lnk_data_t *out,
                 if (out->theta < 0) {
                     out->theta += 180;
                 }
+
+                // Sanity-snap theta against the per-axis histogram peaks. The
+                // raster-order pair iteration biases mdy negative, which can
+                // tilt thick horizontal blobs even when theta lands in the
+                // horizontal hemisphere.
+                int x_peak = 0;
+                for (int i = 0; i < ptr->w; i++) {
+                    x_peak = IM_MAX(x_peak, x_histogram[i]);
+                }
+                int y_peak = 0;
+                for (int i = 0; i < ptr->h; i++) {
+                    y_peak = IM_MAX(y_peak, y_histogram[i]);
+                }
+                if (y_peak > (3 * x_peak)) {
+                    out->theta = 90; // points concentrated along a row -> horizontal
+                } else if (x_peak > (3 * y_peak)) {
+                    out->theta = 0;  // points concentrated along a column -> vertical
+                }
+
                 out->rho = fast_roundf(((mx - roi->x) * cos_table[out->theta]) + ((my - roi->y) * sin_table[out->theta]));
 
                 out->magnitude = fast_roundf(fast_sqrtf((mdx * mdx) + (mdy * mdy)));
