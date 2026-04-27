@@ -231,7 +231,8 @@ static int ioctl(omv_csi_t *csi, int request, va_list ap) {
         case OMV_CSI_IOCTL_LEPTON_SET_MODE: {
             int measurement_mode_in = va_arg(ap, int);
             int high_temp_mode_in = va_arg(ap, int);
-            if (lepton.measurement_mode != measurement_mode_in) {
+            if (lepton.measurement_mode != measurement_mode_in ||
+                lepton.high_temp_mode != high_temp_mode_in) {
                 lepton.measurement_mode = measurement_mode_in;
                 lepton.high_temp_mode = high_temp_mode_in;
                 ret = lepton_config(csi, lepton.measurement_mode, lepton.high_temp_mode);
