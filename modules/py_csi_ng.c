@@ -1065,8 +1065,8 @@ static mp_obj_t py_csi_ioctl(size_t n_args, const mp_obj_t *args) {
         }
 
         case OMV_CSI_IOCTL_LEPTON_SET_MODE:
-            if (n_args == 2) {
-                int high_temp = (n_args == 2) ? false : mp_obj_get_int(args[1]);
+            if (n_args >= 1) {
+                int high_temp = (n_args < 2) ? false : mp_obj_get_int(args[1]);
                 error = omv_csi_ioctl(self->csi, request, mp_obj_get_int(args[0]), high_temp);
             }
             break;
