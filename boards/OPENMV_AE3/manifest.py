@@ -30,6 +30,7 @@ freeze ("$(OMV_LIB_DIR)/", "romfs.py")
 
 # Libraries
 require("ml", library="openmv-lib")
+require("protocol", library="openmv-lib")
 include("$(MPY_DIR)/extmod/asyncio")
 freeze ("$(OMV_LIB_DIR)/", "openamp.py")
 

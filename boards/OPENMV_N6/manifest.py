@@ -32,6 +32,7 @@ require("senml")
 
 # Libraries
 require("ml", library="openmv-lib")
+require("protocol", library="openmv-lib")
 include("$(MPY_DIR)/extmod/asyncio")
 
 # Boot script

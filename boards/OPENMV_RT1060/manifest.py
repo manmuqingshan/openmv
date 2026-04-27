@@ -37,6 +37,7 @@ freeze ("$(OMV_LIB_DIR)/", "mutex.py")
 
 # Libraries
 require("ml", library="openmv-lib")
+require("protocol", library="openmv-lib")
 include("$(MPY_DIR)/extmod/asyncio")
 
 # Boot script
