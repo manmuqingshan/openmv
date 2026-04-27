@@ -138,6 +138,8 @@ struct omv_protocol_channel {
     int (*ioctl) (const omv_protocol_channel_t *channel, uint32_t cmd, size_t len, void *arg);
     // Stdin-specific function to execute scripts internall (not exposed via ioctl).
     bool (*exec) (const omv_protocol_channel_t *channel);
+    // Channel tick (called periodically from the protocol task).
+    void (*tick) (const omv_protocol_channel_t *channel);
     // Transport-specific functions (for channel ID 0 only)
     bool (*is_active) (const omv_protocol_channel_t *channel);
 };

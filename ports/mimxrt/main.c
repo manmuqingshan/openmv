@@ -107,7 +107,6 @@ soft_reset:
     machine_i2s_init0();
     #endif
     machine_rtc_start();
-    omv_protocol_init_default();
 
     #if MICROPY_PY_LWIP
     // lwIP can only be initialized once, because the system timeout
@@ -162,6 +161,9 @@ soft_reset:
         tusb_init();
     }
 
+    // Initialize OpenMV protocol
+    omv_protocol_init_default();
+
     // Run boot.py every reset and main.py on first soft-reset
     if (pyexec_file_if_exists("boot.py") && first_soft_reset) {
         pyexec_file_if_exists("main.py");
@@ -190,6 +192,7 @@ soft_reset:
     // soft reset
     mp_hal_set_interrupt_char(-1);
     mp_printf(MP_PYTHON_PRINTER, "MPY: soft reboot\n");
+    omv_protocol_deinit();
     #if MICROPY_PY_CSI
     omv_csi_abort_all();
     #endif
@@ -214,7 +217,6 @@ soft_reset:
     machine_i2s_deinit_all();
     #endif
     machine_pwm_deinit_all();
-    omv_protocol_deinit();
     soft_timer_deinit();
     imlib_deinit();
     gc_sweep_all();

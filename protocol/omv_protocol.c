@@ -31,6 +31,8 @@
 
 #include "py/mphal.h"
 #include "py/gc.h"
+#include "py/runtime.h"
+#include "shared/runtime/softtimer.h"
 #include "umalloc.h"
 #include "omv_csi.h"
 #include "omv_crc.h"
@@ -45,6 +47,9 @@
 // Static global protocol context
 static omv_protocol_context_t ctx;
 static omv_protocol_config_t default_config;
+static soft_timer_entry_t protocol_timer;
+static mp_sched_node_t protocol_sched_node;
+static void omv_protocol_poll_callback(soft_timer_entry_t *self);
 
 int omv_protocol_init(const omv_protocol_config_t *config) {
     if (!config) {
@@ -77,6 +82,13 @@ int omv_protocol_init(const omv_protocol_config_t *config) {
     // Initialize buffer
     omv_buffer_init(&ctx.buffer, ctx.rawbuf, sizeof(ctx.rawbuf));
 
+    // Start periodic poll timer if configured.
+    if (config->poll_ms > 0) {
+        soft_timer_static_init(&protocol_timer, SOFT_TIMER_MODE_PERIODIC,
+                               config->poll_ms, omv_protocol_poll_callback);
+        soft_timer_insert(&protocol_timer, config->poll_ms);
+    }
+
     return 0;
 }
 
@@ -90,6 +102,7 @@ int omv_protocol_init_default() {
         .rtx_retries = OMV_PROTOCOL_DEF_RTX_RETRIES,
         .rtx_timeout_ms = OMV_PROTOCOL_DEF_RTX_TIMEOUT_MS,
         .lock_intval_ms = OMV_PROTOCOL_MIN_LOCK_INTERVAL_MS,
+        .poll_ms = OMV_PROTOCOL_DEF_POLL_MS,
     };
 
     if (omv_protocol_init(&config) != 0) {
@@ -116,6 +129,10 @@ int omv_protocol_init_default() {
 }
 
 void omv_protocol_deinit(void) {
+    if (ctx.config.poll_ms > 0) {
+        soft_timer_remove(&protocol_timer);
+    }
+
     // Deinitialize all channels, unregister dynamic ones.
     for (int i = 0; i < OMV_PROTOCOL_MAX_CHANNELS; i++) {
         if (ctx.channels[i]) {
@@ -153,6 +170,21 @@ void omv_protocol_reset(void) {
 bool omv_protocol_is_active(void) {
     const omv_protocol_channel_t *transport = omv_protocol_find_transport();
     return transport && transport->is_active(transport);
+}
+
+static void omv_protocol_task(mp_sched_node_t *node) {
+    for (int i = 0; i < ctx.channels_count; i++) {
+        const omv_protocol_channel_t *channel = ctx.channels[i];
+        if (channel && channel->tick) {
+            channel->tick(channel);
+        }
+    }
+
+    omv_protocol_poll();
+}
+
+static void omv_protocol_poll_callback(soft_timer_entry_t *self) {
+    mp_sched_schedule_node(&protocol_sched_node, omv_protocol_task);
 }
 
 bool omv_protocol_exec_script(void) {
@@ -307,14 +339,6 @@ int omv_protocol_send_event(uint8_t channel_id, uint16_t event, bool wait_ack) {
         ret = omv_protocol_send_packet(opcode, channel_id, sizeof(event), &event, flags);
     }
 
-    // The state machine returns immediately after finding an event ACK so we need
-    // to run it one more time to handle any buffered commands. This is especially
-    // important for the USB transport, as it schedules the task on receive IRQs,
-    // which may not occur again if the host is waiting on a reply.
-    if (ret != -1 && wait_ack) {
-        omv_protocol_task();
-    }
-
     return ret;
 }
 
@@ -387,7 +411,7 @@ int omv_protocol_send_packet(uint8_t opcode, uint8_t channel_id, size_t size, co
             }
 
             for (uint32_t start = OMV_PROTOCOL_TICKS_MS(); ctx.wait_for_ack; OMV_PROTOCOL_EVENT_POLL()) {
-                if (omv_protocol_task() == -1) {
+                if (omv_protocol_poll() == -1) {
                     return -1;
                 }
 
@@ -431,7 +455,7 @@ int omv_protocol_send_packet(uint8_t opcode, uint8_t channel_id, size_t size, co
     return 0;
 }
 
-int omv_protocol_task(void) {
+int omv_protocol_poll(void) {
     size_t available = 0;
     const omv_protocol_channel_t *transport = omv_protocol_find_transport();
 
