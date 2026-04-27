@@ -1537,8 +1537,7 @@ bool imlib_get_regression(find_lines_list_lnk_data_t *out,
                           list_t *thresholds,
                           bool invert,
                           unsigned int area_threshold,
-                          unsigned int pixels_threshold,
-                          bool robust);
+                          unsigned int pixels_threshold);
 // Color Tracking
 void imlib_find_blobs(list_t *out, image_t *ptr, rectangle_t *roi, unsigned int x_stride, unsigned int y_stride,
                       list_t *thresholds, bool invert, unsigned int area_threshold, unsigned int pixels_threshold,

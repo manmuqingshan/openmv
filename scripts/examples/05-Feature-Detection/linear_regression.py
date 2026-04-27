@@ -2,7 +2,7 @@
 # Copyright (c) 2013-2023 OpenMV LLC. All rights reserved.
 # https://github.com/openmv/openmv/blob/master/LICENSE
 #
-# Robust Linear Regression Example
+# Linear Regression Example
 #
 # This example shows off how to use the get_regression() method on your OpenMV Cam
 # to get the linear regression of a ROI. Using this method you can easily build
@@ -10,11 +10,10 @@
 # but are not actually connected. Use find_blobs() on lines that are nicely
 # connected for better filtering options and control.
 #
-# We're using the robust=True argument for get_regression() in this script which
-# computes the linear regression using a much more robust algorithm... but potentially
-# much slower. The robust algorithm runs in O(N^2) time on the image. So, YOU NEED
-# TO LIMIT THE NUMBER OF PIXELS the robust algorithm works on or it can actually
-# take seconds for the algorithm to give you a result... THRESHOLD VERY CAREFULLY!
+# get_regression() runs in O(N^2) time on the image. To keep this manageable it
+# area-scales the source ROI down to a temporary buffer before fitting the line;
+# the buffer size is configurable via the target_size=(w, h) keyword argument
+# (default (80, 60)). Pass a larger tuple to operate at higher resolution.
 
 import csi
 import time
@@ -25,8 +24,8 @@ BINARY_VISIBLE = True  # Binary pass first to see what linear regression is runn
 csi0 = csi.CSI()
 csi0.reset()
 csi0.pixformat(csi.GRAYSCALE)
-csi0.framesize(csi.QQQVGA)  # 80x60 (4,800 pixels) - O(N^2) max = 2,3040,000.
-csi0.snapshot(time=2000)  # WARNING: If you use QQVGA it may take seconds
+csi0.framesize(csi.QVGA)
+csi0.snapshot(time=2000)
 
 clock = time.clock()  # to process a frame sometimes.
 
@@ -38,12 +37,9 @@ while True:
     # find_line_segments(). You have x1(), y1(), x2(), y2(), length(),
     # theta() (rotation in degrees), rho(), and magnitude().
     #
-    # magnitude() represents how well the linear regression worked. It means something
-    # different for the robust linear regression. In general, the larger the value the
-    # better...
-    line = img.get_regression(
-        [(255, 255) if BINARY_VISIBLE else THRESHOLD], robust=True
-    )
+    # magnitude() represents how well the linear regression worked. In general,
+    # the larger the value the better...
+    line = img.get_regression([(255, 255) if BINARY_VISIBLE else THRESHOLD])
 
     if line:
         img.draw_line(line.line(), color=127)

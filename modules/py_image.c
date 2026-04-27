@@ -4053,7 +4053,7 @@ static MP_DEFINE_CONST_OBJ_TYPE(
 static mp_obj_t py_image_get_regression(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum {
         ARG_thresholds, ARG_invert, ARG_roi, ARG_x_stride, ARG_y_stride,
-        ARG_area_threshold, ARG_pixels_threshold, ARG_robust
+        ARG_area_threshold, ARG_pixels_threshold, ARG_target_size
     };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_thresholds,       MP_ARG_OBJ | MP_ARG_REQUIRED },
@@ -4063,7 +4063,7 @@ static mp_obj_t py_image_get_regression(size_t n_args, const mp_obj_t *pos_args,
         { MP_QSTR_y_stride,        MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = 1} },
         { MP_QSTR_area_threshold,  MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = 10} },
         { MP_QSTR_pixels_threshold, MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = 10} },
-        { MP_QSTR_robust,           MP_ARG_BOOL | MP_ARG_KW_ONLY, {.u_bool = false} },
+        { MP_QSTR_target_size,     MP_ARG_OBJ | MP_ARG_KW_ONLY, {.u_rom_obj = MP_ROM_NONE} },
     };
     image_t *image = py_helper_arg_to_image(pos_args[0], ARG_IMAGE_MUTABLE);
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
@@ -4083,14 +4083,70 @@ static mp_obj_t py_image_get_regression(size_t n_args, const mp_obj_t *pos_args,
     PY_ASSERT_TRUE_MSG(y_stride > 0, "y_stride must not be zero.");
     unsigned int area_threshold = args[ARG_area_threshold].u_int;
     unsigned int pixels_threshold = args[ARG_pixels_threshold].u_int;
-    bool robust = args[ARG_robust].u_bool;
+
+    // Target_size caps the working buffer; the underlying algorithm is O(N^2),
+    // so we area-scale the source ROI down before running it. Default 80x60
+    // matches the QQQVGA size used by the racing examples.
+    int target_w = 80;
+    int target_h = 60;
+    if (args[ARG_target_size].u_obj != mp_const_none) {
+        mp_obj_t *vec;
+        mp_obj_get_array_fixed_n(args[ARG_target_size].u_obj, 2, &vec);
+        target_w = mp_obj_get_int(vec[0]);
+        target_h = mp_obj_get_int(vec[1]);
+        PY_ASSERT_TRUE_MSG(target_w > 0 && target_h > 0, "target_size dimensions must be positive.");
+    }
+
+    // Uniform scale that fits the ROI inside target_size; never upscale.
+    float fit_x = ((float) target_w) / roi.w;
+    float fit_y = ((float) target_h) / roi.h;
+    float scale = IM_MIN(IM_MIN(fit_x, fit_y), 1.0f);
+    bool do_scale = (scale < 1.0f);
+
+    image_t *work_img = image;
+    rectangle_t work_roi = roi;
+    image_t temp_img;
+
+    if (do_scale) {
+        temp_img.w = IM_MAX(fast_roundf(roi.w * scale), 1);
+        temp_img.h = IM_MAX(fast_roundf(roi.h * scale), 1);
+        temp_img.pixfmt = image->pixfmt;
+        temp_img.data = uma_malloc(image_size(&temp_img), UMA_CACHE);
+
+        imlib_draw_image(&temp_img, image, 0, 0, scale, scale, &roi,
+                         -1, 255, NULL, NULL, IMAGE_HINT_AREA, NULL, NULL, NULL, NULL);
+
+        work_img = &temp_img;
+        work_roi.x = 0;
+        work_roi.y = 0;
+        work_roi.w = temp_img.w;
+        work_roi.h = temp_img.h;
+    }
 
     find_lines_list_lnk_data_t out;
-    bool result = imlib_get_regression(&out, image, &roi, x_stride,
-                                       y_stride, &thresholds, invert, area_threshold, pixels_threshold, robust);
+    bool result = imlib_get_regression(&out, work_img, &work_roi, x_stride,
+                                       y_stride, &thresholds, invert, area_threshold, pixels_threshold);
+
+    if (do_scale) {
+        uma_free(temp_img.data);
+    }
     list_free(&thresholds);
     if (!result) {
         return mp_const_none;
+    }
+
+    if (do_scale) {
+        // Map endpoints back to source coordinates.
+        float inv = 1.0f / scale;
+        out.line.x1 = fast_roundf(out.line.x1 * inv) + roi.x;
+        out.line.y1 = fast_roundf(out.line.y1 * inv) + roi.y;
+        out.line.x2 = fast_roundf(out.line.x2 * inv) + roi.x;
+        out.line.y2 = fast_roundf(out.line.y2 * inv) + roi.y;
+        // theta is invariant under uniform scale; rho needs to be unscaled and
+        // shifted from the temp origin (which was source ROI top-left) to (0, 0).
+        out.rho = fast_roundf(out.rho * inv)
+                  + fast_roundf((roi.x * cos_table[out.theta]) + (roi.y * sin_table[out.theta]));
+        out.magnitude = fast_roundf(out.magnitude * inv);
     }
 
     py_line_obj_t *o = m_new_obj(py_line_obj_t);
