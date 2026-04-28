@@ -184,25 +184,6 @@ jobs:
         path: ${{ github.event.pull_request.number }}.md
         if-no-files-found: error
 
-  trigger-studio-update:
-    needs: build-firmware
-    runs-on: ubuntu-24.04
-    if: github.event_name == 'push'
-    steps:
-    - name: '🔑 Generate app token'
-      id: app-token
-      uses: actions/create-github-app-token@v3
-      with:
-        app-id: ${{ secrets.APP_ID }}
-        private-key: ${{ secrets.APP_PRIVATE_KEY }}
-        owner: ${{ github.repository_owner }}
-        repositories: openmv-studio
-
-    - name: '🚀 Trigger studio resources update'
-      env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token }}
-      run: gh workflow run resources.yml --repo ${{ github.repository_owner }}/openmv-studio
-
   stable-release:
     needs: build-firmware
     runs-on: ubuntu-24.04
