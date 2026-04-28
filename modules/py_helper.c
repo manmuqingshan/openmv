@@ -323,3 +323,16 @@ void py_helper_set_to_framebuffer(image_t *img) {
 
     framebuffer_release(fb, FB_FLAG_FREE);
 }
+
+void py_helper_get_array_min_n(mp_obj_t obj, size_t min_n, mp_obj_t **items) {
+    size_t len;
+    if (mp_obj_is_tuple_compatible(obj)) {
+        mp_obj_tuple_get(obj, &len, items);
+    } else {
+        mp_obj_get_array(obj, &len, items);
+    }
+    if (len < min_n) {
+        mp_raise_msg_varg(&mp_type_TypeError,
+                          MP_ERROR_TEXT("expected tuple/list of at least %d elements"), (int) min_n);
+    }
+}
