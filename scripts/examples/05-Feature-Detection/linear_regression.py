@@ -34,17 +34,17 @@ while True:
     img = csi0.snapshot().binary([THRESHOLD]) if BINARY_VISIBLE else csi0.snapshot()
 
     # Returns a line object similar to line objects returned by find_lines() and
-    # find_line_segments(). You have x1(), y1(), x2(), y2(), length(),
-    # theta() (rotation in degrees), rho(), and magnitude().
+    # find_line_segments(). You have x1, y1, x2, y2, length,
+    # theta (rotation in degrees), rho, and magnitude attributes.
     #
-    # magnitude() represents how well the linear regression worked. In general,
+    # magnitude represents how well the linear regression worked. In general,
     # the larger the value the better...
     line = img.get_regression([(255, 255) if BINARY_VISIBLE else THRESHOLD])
 
     if line:
-        img.draw_line(line.line(), color=127)
+        img.draw_line(line, color=127)
     print(
-        "FPS %f, mag = %s" % (clock.fps(), str(line.magnitude()) if (line) else "N/A")
+        "FPS %f, mag = %s" % (clock.fps(), str(line.magnitude) if (line) else "N/A")
     )
 
 # About negative rho values:

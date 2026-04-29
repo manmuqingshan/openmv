@@ -52,4 +52,5 @@ int py_helper_arg_to_ksize(const mp_obj_t arg);
 bool py_helper_is_equal_to_framebuffer(image_t *img);
 void py_helper_update_framebuffer(image_t *img);
 void py_helper_set_to_framebuffer(image_t *img);
+void py_helper_get_array_min_n(mp_obj_t obj, size_t min_n, mp_obj_t **items);
 #endif // __PY_HELPER__
