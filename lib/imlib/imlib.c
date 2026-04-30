@@ -653,7 +653,7 @@ static save_image_format_t imblib_parse_extension(image_t *img, const char *path
 }
 
 bool imlib_read_geometry(file_t *fp, image_t *img, const char *path, img_read_settings_t *rs) {
-    char magic[4];
+    uint8_t magic[4];
     file_open(fp, path, FA_READ | FA_OPEN_EXISTING);
     file_read(fp, &magic, 4);
     file_close(fp);
@@ -692,7 +692,7 @@ bool imlib_read_geometry(file_t *fp, image_t *img, const char *path, img_read_se
 #if defined(IMLIB_ENABLE_IMAGE_FILE_IO)
 void imlib_load_image(image_t *img, const char *path) {
     file_t fp;
-    char magic[4];
+    uint8_t magic[4];
     file_open(&fp, path, FA_READ | FA_OPEN_EXISTING);
     file_read(&fp, &magic, 4);
     file_close(&fp);
